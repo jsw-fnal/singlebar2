@@ -18,7 +18,7 @@ For the interactive runing:
 
 Check the geometry through a detector viewing window
 ```bash
-./CEPC_CaloTiming -c template.cfg -u Xm  
+./CEPC_CaloTiming -c template.cfg -u Qt  
 ```
 Run the events defined in run.mac
 ```bash
