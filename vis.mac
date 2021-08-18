@@ -1,5 +1,5 @@
 # Use this open statement to create an OpenGL view:
-/vis/open OGL 800x800-0+0
+/vis/open OGL 800x500-0+0
 
 
 
@@ -11,6 +11,7 @@
 
 # Draw geometry:
 /vis/drawVolume
+
 
 # Specify view angle:
 # from above
@@ -27,7 +28,7 @@
 /vis/viewer/set/viewpointThetaPhi 270 0 deg 
 
 # Specify zoom value:
-/vis/viewer/zoomTo 80
+/vis/viewer/zoomTo 10
 
 # Specify style (surface or wireframe):
 #/vis/viewer/set/style wireframe
@@ -103,6 +104,9 @@
 
 #/gps/ang/rot1 0. 0. 0.
 #/gps/ang/rot2 0. 0. 1.
+
+
+
 
 
 #/tracking/verbose 1

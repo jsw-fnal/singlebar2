@@ -28,6 +28,16 @@ Run the events defined in run.mac
 # -o output file
 ```
 
+## Template to access and build the examples
+```
+ls $G4EXAMPLES
+cd /tmp; mkdir geant-test; cd geant-test
+cmake $G4EXAMPLES/basic/B5
+make
+./exampleB5
+```
+
+
 ## Bulk running
 use the generate_temp.sh in `./template`
 ```bash

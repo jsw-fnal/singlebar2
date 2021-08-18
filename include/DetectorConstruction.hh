@@ -77,6 +77,13 @@ public:
   void ConstructField();
   void SetMaxStep(G4double);
   void initializeSurface();
+
+  void AddModule(G4LogicalVolume *LV, int ix, int iy, 
+		 G4LogicalVolume *sipmBaseL, G4LogicalVolume *sipmActiveL, G4LogicalVolume *sipmInActiveL,
+		 G4LogicalVolume *ecalCrystalL_f, G4LogicalVolume *ecalWrapperL_f,
+		 G4LogicalVolume *ecalCrystalL_r, G4LogicalVolume *ecalWrapperL_r, 
+		 G4double wgap, G4double sgap, G4double zgap);
+
 /*
   void initializeSurfaces(G4OpticalSurface *mySurface, string surfaceType);
   void initializeReflectivitySurface(G4OpticalSurface *surface, string surfaceType);
@@ -125,15 +132,20 @@ private:
   G4double core_rIndex;
   G4double core_absLength;
 
+ 
+
   G4int gap_material;
+  G4double wrapper_gap;
+  G4double wrap_l;
   G4double gap_l;
   G4double gap_size_x;
   G4double gap_size_y;
 
   G4int det_material;
   G4double det_l;
-  G4double det_size_x;
-  G4double det_size_y;
+  G4double det_window_size;
+  //  G4double det_size_x;
+  //  G4double det_size_y;
 
   G4double depth;
   G4double cryst_dist;
@@ -142,6 +154,8 @@ private:
 
   G4double ecal_incline;
   G4double ecal_xy_gap;
+  G4double ecal_z_gap;
+
   G4double fiber_type;
   G4int ecal_material;
   G4int scinti_material;
@@ -161,6 +175,16 @@ private:
   G4double wrapping_thick;
   G4double ecal_timing_distance;
   G4double ecal_det_size;
+
+
+  G4double sipm_size_x;   
+  G4double sipm_size_y;
+  G4double sipm_size_z;
+  G4double sipm_window_l;
+  G4double sipm_active_x;
+  G4double sipm_active_y;
+  G4double sipm_gap;
+
 
   G4double hcal_width;
   G4double hcalTile_width;

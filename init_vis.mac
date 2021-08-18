@@ -15,3 +15,7 @@
 #
 # Visualization setting
 /control/execute vis.mac
+
+
+# Use this command in the viewer window to check for overlaps in the AssemblyVolumes
+/geometry/test/run
