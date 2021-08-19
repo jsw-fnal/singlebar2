@@ -166,7 +166,7 @@ DetectorConstruction::DetectorConstruction(const string &configFileName)
 
   B_field_IsInitialized = false;
 
-  initializeMaterials();
+ initializeMaterials();
   initializeSurface();
 
   CreateTree::Instance()->inputTrackerX0 = trackerX0;
@@ -271,36 +271,48 @@ G4VPhysicalVolume *DetectorConstruction::Construct()
   G4double base_l = sipm_size_z	- sipm_window_l;
   G4Box *sipmBaseS = new G4Box("sipmBaseS", sipm_size_x * 0.5, sipm_size_y * 0.5, base_l * 0.5);
   G4Box *sipmTopS = new G4Box("sipmTopS", sipm_size_x * 0.5, sipm_size_y * 0.5, sipm_window_l * 0.5);
-  G4Box *sipmActiveS = new G4Box("sipmActiveS", sipm_active_x * 0.5, sipm_active_y * 0.5, sipm_window_l * 0.5);
+  G4Box *sipmActiveS = new G4Box("sipmSActive", sipm_active_x * 0.5, sipm_active_y * 0.5, sipm_window_l * 0.5);
   G4VSolid *sipmInActiveS = new G4SubtractionSolid("sipmInactiveS", sipmTopS, sipmActiveS, NULL, G4ThreeVector(0, 0, 0));
 
-  G4LogicalVolume *sipmActiveL = new G4LogicalVolume(sipmActiveS, WindowMaterial, "sipmActiveL", 0, 0, 0);
+  G4LogicalVolume *sipmSActiveL = new G4LogicalVolume(sipmActiveS, WindowMaterial, "sipmSActiveL", 0, 0, 0);
+  G4LogicalVolume *sipmCActiveL = new G4LogicalVolume(sipmActiveS, WindowMaterial, "sipmCActiveL", 0, 0, 0);
+  G4LogicalVolume *sipmFActiveL = new G4LogicalVolume(sipmActiveS, WindowMaterial, "sipmFActiveL", 0, 0, 0);
+
   G4LogicalVolume *sipmInActiveL = new G4LogicalVolume(sipmInActiveS, WindowMaterial, "sipmInActiveL", 0, 0, 0);
   G4LogicalVolume *sipmBaseL = new G4LogicalVolume(sipmBaseS, DeMaterial, "sipmBaseL", 0, 0, 0);
 
-  // SiPM assembly S
+  // SiPM assembly front 
   Ta.set(0,0,0);
-  G4AssemblyVolume* sipmAssemblyS = new G4AssemblyVolume();
+  G4AssemblyVolume* sipmFAssembly = new G4AssemblyVolume();
   Ta.setZ(sipm_window_l * 0.5);                             // 1/2 dept of active area
-  sipmAssemblyS->AddPlacedVolume( sipmActiveL, Ta, &Ra );   // origin is at center of active area at SiPM surface
-  sipmAssemblyS->AddPlacedVolume( sipmInActiveL, Ta, &Ra );
+  sipmFAssembly->AddPlacedVolume( sipmFActiveL, Ta, &Ra );   // origin is at center of active area at SiPM surface
+  sipmFAssembly->AddPlacedVolume( sipmInActiveL, Ta, &Ra );
   Ta.setZ( sipm_window_l + base_l*0.5 );
-  sipmAssemblyS->AddPlacedVolume( sipmBaseL, Ta, &Ra );
+  sipmFAssembly->AddPlacedVolume( sipmBaseL, Ta, &Ra );
 
-  // SiPM assembly C
+  // SiPM assembly S-type
   Ta.set(0,0,0);
-  G4AssemblyVolume* sipmAssemblyC = new G4AssemblyVolume();
+  G4AssemblyVolume* sipmSAssembly = new G4AssemblyVolume();
   Ta.setZ(sipm_window_l * 0.5);                             // 1/2 dept of active area
-  sipmAssemblyC->AddPlacedVolume( sipmActiveL, Ta, &Ra );   // origin is at center of active area at SiPM surface
-  sipmAssemblyC->AddPlacedVolume( sipmInActiveL, Ta, &Ra );
+  sipmSAssembly->AddPlacedVolume( sipmSActiveL, Ta, &Ra );   // origin is at center of active area at SiPM surface
+  sipmSAssembly->AddPlacedVolume( sipmInActiveL, Ta, &Ra );
   Ta.setZ( sipm_window_l + base_l*0.5 );
-  sipmAssemblyC->AddPlacedVolume( sipmBaseL, Ta, &Ra );
+  sipmSAssembly->AddPlacedVolume( sipmBaseL, Ta, &Ra );
 
+  // SiPM assembly C-type
+  Ta.set(0,0,0);
+  G4AssemblyVolume* sipmCAssembly = new G4AssemblyVolume();
+  Ta.setZ(sipm_window_l * 0.5);                             // 1/2 dept of active area
+  sipmCAssembly->AddPlacedVolume( sipmCActiveL, Ta, &Ra );   // origin is at center of active area at SiPM surface
+  sipmCAssembly->AddPlacedVolume( sipmInActiveL, Ta, &Ra );
+  Ta.setZ( sipm_window_l + base_l*0.5 );
+  sipmCAssembly->AddPlacedVolume( sipmBaseL, Ta, &Ra );
 
+  // testing
   //Ta.set(0,0,0);
-  //sipmAssemblyS->MakeImprint(caloLV, Ta, &Ra);
+  //sipmSAssembly->MakeImprint(caloLV, Ta, &Ra);
   //Ta.set(0,-2*sipm_size_x,0);
-  //sipmAssemblyC->MakeImprint(caloLV, Ta, &Ra);
+  //sipmCAssembly->MakeImprint(caloLV, Ta, &Ra);
 
   /////// module assembly ///////
   // crystal assembly
@@ -314,20 +326,25 @@ G4VPhysicalVolume *DetectorConstruction::Construct()
   xtalAssembly->AddPlacedVolume( ecalCrystalL_r, Ta, &Ra );
   xtalAssembly->AddPlacedVolume( ecalWrapperL_r, Ta, &Ra ); 
 
-  // front sipm
+  // front sipm, center on front face
   Ta.set(0,0,-0.5*sipm_window_l-sipm_gap);
   Ra.rotateX(180 * deg);
-  xtalAssembly->AddPlacedAssembly(sipmAssemblyS, Ta, &Ra);
+  xtalAssembly->AddPlacedAssembly(sipmFAssembly, Ta, &Ra);
 
-  // rear sipms
+  // rear sipms, place along horizontal center line
   Ra=G4RotationMatrix();
   Ta.set(-ecal_rear_face/4,0,0.5*sipm_window_l+ecal_front_length + wrapper_gap*2 + wrap_l*2 + ecal_z_gap + ecal_rear_length+sipm_gap);
-  xtalAssembly->AddPlacedAssembly(sipmAssemblyS, Ta, &Ra);
+  xtalAssembly->AddPlacedAssembly(sipmSAssembly, Ta, &Ra);
   Ta.set(ecal_rear_face/4,0,0.5*sipm_window_l+ecal_front_length + wrapper_gap*2 + wrap_l*2 + ecal_z_gap + ecal_rear_length+sipm_gap);
-  xtalAssembly->AddPlacedAssembly(sipmAssemblyC, Ta, &Ra);
+  xtalAssembly->AddPlacedAssembly(sipmCAssembly, Ta, &Ra);
 
+  // module placement in caloLV
   Ta.set(0,0,0);
   xtalAssembly->MakeImprint(caloLV, Ta, &Ra);
+
+  ///////////////
+
+
 
 
   // ECAL physical placement
@@ -429,13 +446,14 @@ G4VPhysicalVolume *DetectorConstruction::Construct()
 
   G4Colour green(0.00, 1.00, 0.00); // green
   G4Colour blue(0.00, 0.00, 1.00);  // blue
+  G4Colour brightube(209,159,232);
   G4Colour lightblue(0.69, 0.89, 1.0);
   G4Colour cyan(0.00, 1.00, 1.00);    // cyan
   G4Colour air(0.90, 0.90, 1.00);    
-  G4Colour magenta(1.00, 0.00, 1.00); // magenta
-  G4Colour yellow(1.00, 1.0, 0.00);  // yellow
-  G4Colour brass(0.80, 0.60, 0.40);   // brass
-  G4Colour brown(0.70, 0.40, 0.10);   // brown
+  G4Colour magenta(1.00, 0.00, 1.00);  // magenta
+  G4Colour yellow(1.00, 1.0, 0.00);    // yellow
+  G4Colour brass(0.80, 0.60, 0.40);    // brass
+  G4Colour brown(0.70, 0.40, 0.10);    // brown
 
   G4VisAttributes *VisAttWorld = new G4VisAttributes(white);
   VisAttWorld->SetVisibility(true);
@@ -466,6 +484,8 @@ G4VPhysicalVolume *DetectorConstruction::Construct()
   VisAttecalDet->SetForceWireframe(true);
   ecalDetL->SetVisAttributes(VisAttecalDet);
   ecalGapL->SetVisAttributes(VisAttecalDet);
+  VisAttecalDet->SetForceWireframe(false);
+  sipmBaseL->SetVisAttributes(VisAttecalDet);
 
   G4VisAttributes *VisAttecalDetW = new G4VisAttributes(red);
   VisAttecalDetW->SetVisibility(true);
@@ -482,10 +502,17 @@ G4VPhysicalVolume *DetectorConstruction::Construct()
   ecalWrapperL_f->SetVisAttributes(Viswrap);
   ecalWrapperL_r->SetVisAttributes(Viswrap);
 
-  G4VisAttributes *VisSipmActive = new G4VisAttributes(red);
-  VisSipmActive->SetVisibility(true);
-  VisSipmActive->SetForceWireframe(false);
-  sipmActiveL->SetVisAttributes(VisSipmActive);
+  G4VisAttributes *VisSipmSActive = new G4VisAttributes(green);
+  VisSipmSActive->SetVisibility(true);
+  VisSipmSActive->SetForceWireframe(false);
+  sipmSActiveL->SetVisAttributes(VisSipmSActive);
+  sipmFActiveL->SetVisAttributes(VisSipmSActive);
+
+  G4VisAttributes *VisSipmCActive = new G4VisAttributes(magenta);
+  VisSipmCActive->SetVisibility(true);
+  VisSipmCActive->SetForceWireframe(false);
+  sipmCActiveL->SetVisAttributes(VisSipmCActive);
+
 
   G4VisAttributes *VisSipmInActive = new G4VisAttributes(darkred);
   VisSipmInActive->SetVisibility(true);
