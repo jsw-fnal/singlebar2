@@ -76,7 +76,8 @@ SteppingAction::~SteppingAction()
 
 void SteppingAction::UserSteppingAction(const G4Step *theStep)
 {
-  
+  // this code does very little now 
+  // it is being replaced with sensitive detector code
 
   G4Track *theTrack = theStep->GetTrack();
 
@@ -127,7 +128,6 @@ void SteppingAction::UserSteppingAction(const G4Step *theStep)
     theTrack->SetTrackStatus(fKillTrackAndSecondaries);
     return;
   }
-
 
   if (!propagateCerenkov && (processName == "Cerenkov"))
     theTrack->SetTrackStatus(fKillTrackAndSecondaries);
@@ -338,29 +338,6 @@ void SteppingAction::UserSteppingAction(const G4Step *theStep)
       }
     }
 
-    //timing
-    if (thePrePVName.contains("corePV_front"))
-    {
-      CreateTree::Instance()->depositedEnergyTiming_f += energy / GeV;
-      CreateTree::Instance()->depositedIonEnergyTiming_f += energyIon / GeV;
-      CreateTree::Instance()->depositedElecEnergyTiming_f += energyElec / GeV;
-      for (int iBar = 0; iBar < 18; iBar++)
-      {
-        if (thePrePVName == Form("corePV_front_%d", iBar))
-          CreateTree::Instance()->Edep_Timing_f_ch[iBar] += energy / GeV;
-      }
-    }
-    if (thePrePVName.contains("corePV_rear"))
-    {
-      CreateTree::Instance()->depositedEnergyTiming_r += energy / GeV;
-      CreateTree::Instance()->depositedIonEnergyTiming_r += energyIon / GeV;
-      CreateTree::Instance()->depositedElecEnergyTiming_r += energyElec / GeV;
-      for (int iBar = 0; iBar < 18; iBar++)
-      {
-        if (thePrePVName == Form("corePV_rear_%d", iBar))
-          CreateTree::Instance()->Edep_Timing_r_ch[iBar] += energy / GeV;
-      }
-    }
 
     //ecal
 
@@ -392,12 +369,6 @@ void SteppingAction::UserSteppingAction(const G4Step *theStep)
       CreateTree::Instance()->depositedElecEnergyServices += energyElec / GeV;
     }
 
-    if (thePrePVName.contains("TimingGap"))
-    {
-      CreateTree::Instance()->depositedEnergyTimingGap += energy / GeV;
-      CreateTree::Instance()->depositedIonEnergyTimingGap += energyIon / GeV;
-      CreateTree::Instance()->depositedElecEnergyTimingGap += energyElec / GeV;
-    }
 
     if (thePrePVName.contains("ecalGap"))
     {

@@ -63,14 +63,11 @@ public:
   float depositedEnergyEscapeWorld;
 
   float depositedEnergyTotal;
-  float depositedEnergyTiming_f;
-  float depositedEnergyTiming_r;
   float depositedEnergyECAL_f[3];
   float depositedEnergyECAL_r[3];
   float depositedEnergyHCALAct;
   float depositedEnergyHCALPas;
   float depositedEnergyServices;
-  float depositedEnergyTimingGap;
   float depositedEnergyEcalGap;
   float depositedEnergyEcalDet;
   float depositedEnergySolenoid;
@@ -79,28 +76,22 @@ public:
   float depositedEnergyEcalFront;
 
   float depositedIonEnergyTotal;
-  float depositedIonEnergyTiming_f;
-  float depositedIonEnergyTiming_r;
   float depositedIonEnergyECAL_f[3];
   float depositedIonEnergyECAL_r[3];
   float depositedIonEnergyHCALAct;
   float depositedIonEnergyHCALPas;
   float depositedIonEnergyServices;
-  float depositedIonEnergyTimingGap;
   float depositedIonEnergyEcalGap;
   float depositedIonEnergyEcalDet;
   float depositedIonEnergySolenoid;
   float depositedIonEnergyWorld;
 
   float depositedElecEnergyTotal;
-  float depositedElecEnergyTiming_f;
-  float depositedElecEnergyTiming_r;
   float depositedElecEnergyECAL_f[3];
   float depositedElecEnergyECAL_r[3];
   float depositedElecEnergyHCALAct;
   float depositedElecEnergyHCALPas;
   float depositedElecEnergyServices;
-  float depositedElecEnergyTimingGap;
   float depositedElecEnergyEcalGap;
   float depositedElecEnergyEcalDet;
   float depositedElecEnergySolenoid;
@@ -123,8 +114,7 @@ public:
   float depositedIonEnergyECAL_cheren_f_particleID[8];
   float depositedIonEnergyECAL_cheren_r_particleID[8];
 
-  int tot_phot_cer_Timing_f_total;
-  int tot_phot_cer_Timing_r_total;
+
   int ECAL_f_total_S;
   int ECAL_r_total_S;
   int ECAL_f_total_C;
@@ -144,9 +134,6 @@ public:
   /***************** begin to seperate energy into different channels    ******************/
   float Edep_Tracker_layer[6];
 
-  //energy deposit in each trasnversally segmented channel
-  float Edep_Timing_f_ch[18];
-  float Edep_Timing_r_ch[18];
 
   TH1F *h_phot_lambda_ECAL_f_collect_Ceren;
   TH1F *h_phot_lambda_ECAL_r_collect_Ceren;
