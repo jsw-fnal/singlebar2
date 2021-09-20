@@ -94,8 +94,8 @@ int main(int argc,char** argv)
   string file;
   string filename;
   TFile* outfile = NULL;
-  bool DDD=0;
-  bool BOOO=0;
+  bool UI_on=0;
+  bool MAKE_ROOTFILE=0;
   /*  
   if (argc != 3 && argc != 2)
   {
@@ -125,10 +125,10 @@ int main(int argc,char** argv)
   G4String dconfig;
   for ( G4int i=1; i<argc; i=i+2 ) {
     if      ( G4String(argv[i]) == "-m" ) macro = argv[i+1];
-    else if ( G4String(argv[i]) == "-u" ) {session = argv[i+1];DDD=1;}
+    else if ( G4String(argv[i]) == "-u" ) {session = argv[i+1];UI_on=1;}
     else if ( G4String(argv[i]) == "-c" ) dconfig = argv[i+1];
     else if ( G4String(argv[i]) == "-o" ) {
-      BOOO=1;
+      MAKE_ROOTFILE=1;
       file = argv[i+1];
       filename = file + ".root";
       G4cout << "Writing data to file '" << filename << "' ..." << G4endl;
@@ -269,13 +269,13 @@ int main(int argc,char** argv)
   string gps_instructions_file = "" ;
   
   
-  if (DDD)   // Define UI session for interactive mode
+  if (UI_on)   // Define UI session for interactive mode
   {   
     // Initialize G4 kernel
     //
 
     runManager -> Initialize();
-    std::cout<<"a"<<endl;    
+    std::cout<<"runManager initialized"<<endl;    
 
     #ifdef G4VIS_USE
 
@@ -325,7 +325,7 @@ int main(int argc,char** argv)
   delete runManager;
   delete verbosity;
   
-  if(BOOO) 
+  if(MAKE_ROOTFILE) 
   {
     G4cout << "Writing tree to file " << filename << " ..." << G4endl;
     mytree->Write (outfile) ;

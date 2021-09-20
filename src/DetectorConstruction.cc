@@ -31,7 +31,14 @@
 //---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
 #include "DetectorConstruction.hh"
-#include "DR_PMTSD.hh"
+#include "SD_sipmF.hh"
+#include "SD_sipmC.hh"
+#include "SD_sipmS.hh"
+
+#include "SD_CrystalF.hh"
+#include "SD_CrystalR.hh"
+
+
 #include "SurfaceProperty.hh"
 #include "G4LogicalBorderSurface.hh"
 #include "G4LogicalSkinSurface.hh"
@@ -55,6 +62,7 @@
 #include "G4AssemblyVolume.hh"
 #include "G4PVReplica.hh"
 #include "G4SubtractionSolid.hh"
+#include "G4IntersectionSolid.hh"
 #include "G4GeometryTolerance.hh"
 #include "G4GeometryManager.hh"
 #include "G4NistManager.hh"
@@ -77,6 +85,18 @@
 
 using namespace CLHEP;
 
+
+/*********************************************************
+Misc to do items
+- add an option to place a slab of material in front of the module to simulate upstream (eg tracker) material
+- allow definition of baffle material to be independent of wrapper, change name of wrapper to alveola
+- add independent adjustable spacing between front/rear assemblies, now it is the gap length
+- in general calrify setting for xtal/module spacing in x,y,z
+- add independent adjustable diatance from xtal face to sipm(s), now it is the gap length
+- add option to place material (eg optical grease) between sipm and xtal
+- center module assembly at z=0 in caloLV
+**********************************************************/
+
 DetectorConstruction::DetectorConstruction(const string &configFileName)
 {
   //---------------------------------------
@@ -85,38 +105,6 @@ DetectorConstruction::DetectorConstruction(const string &configFileName)
 
   ConfigFile config(configFileName);
 
-  //------------- Not used --------------
-  /*  
-  config.readInto(bar_length, "bar_length");
-  config.readInto(core_radius_x, "core_radius_x");
-  config.readInto(core_radius_y, "core_radius_y");
-  config.readInto(core_material, "core_material");
-  config.readInto(core_rIndex, "core_rIndex");
-  config.readInto(core_absLength, "core_absLength");  
-  config.readInto(gap_size_x, "gap_size_x");
-  config.readInto(gap_size_y, "gap_size_y");
-  config.readInto(det_size_x, "det_size_x");
-  config.readInto(det_size_y, "det_size_y");
-  config.readInto(depth, "depth");
-  config.readInto(cryst_dist, "cryst_dist");
-  config.readInto(trackerX0, "trackerX0");
-  config.readInto(services_thick, "services_thick");
-  config.readInto(fiber_type, "fiber_type");
-  config.readInto(scinti_material, "scinti_material");
-  config.readInto(Cherenc_material, "Cherenc_material");
-  config.readInto(Cherenp_material, "Cherenp_material");
-  config.readInto(rear_filter, "rear_filter");
-  config.readInto(front_filter, "front_filter");
-  config.readInto(hole_diameter, "hole_diameter");
-  config.readInto(fiber_diameter, "fiber_diameter");
-  config.readInto(wrapping_thick, "wrapping_thick");
-   config.readInto(hcal_width, "hcal_width");
-  config.readInto(hcalTile_width, "hcalTile_width");
-  config.readInto(hcalAbs_1_thick, "hcalAbs_1_thick");
-  config.readInto(hcalAbs_2_thick, "hcalAbs_2_thick");
-  config.readInto(solenoid_thick, "solenoid_thick");
-  config.readInto(hcalTile_thick, "hcalTile_thick");
-  */  
 
   //------------- used in Single bar --------------
   config.readInto(checkOverlaps, "checkOverlaps");
@@ -148,25 +136,22 @@ DetectorConstruction::DetectorConstruction(const string &configFileName)
   config.readInto(wrapper_gap,"wrapper_gap");
   config.readInto(wrap_l,"wrap_l");
 
-  config.readInto(ecal_det_size, "ecal_det_size");
-  config.readInto(det_window_size, "det_window_size");
-  config.readInto(det_l, "det_l");
   config.readInto(det_material, "det_material");
 
   config.readInto(gap_l, "gap_l");
   config.readInto(gap_material, "gap_material");
  
- // config.readInto(ecal_timing_distance, "ecal_timing_distance");
+  config.readInto(narray, "narray");
 
-  B_field_intensity = config.read<double>("B_field_intensity") * tesla;
+  // B_field_intensity = config.read<double>("B_field_intensity") * tesla;
 
-  expHall_x = 50. * cm;
-  expHall_y = 50. * cm;
-  expHall_z = 50. * cm;
+  expHall_x = 150. * cm;
+  expHall_y = 150. * cm;
+  expHall_z = 150. * cm;
 
   B_field_IsInitialized = false;
 
- initializeMaterials();
+  initializeMaterials();
   initializeSurface();
 
   CreateTree::Instance()->inputTrackerX0 = trackerX0;
@@ -202,28 +187,22 @@ G4VPhysicalVolume *DetectorConstruction::Construct()
   G4VPhysicalVolume *worldPV = new G4PVPlacement(0, G4ThreeVector(), worldLV, "worldPV", 0, false, 0, checkOverlaps);
 
 
-
-
   //********************************************
   //  Crystal bar
   //********************************************
 
-  double window_l = 0.2 * mm;
-  double Case_l = 0.01 * mm;
-  double wrapper__gap = 0.1 * mm;
 
   double pointingAngle = ecal_incline;
   double alveola_thickness = ecal_xy_gap * mm;
-  double Front_Back_distance = 10 * mm;
 
-  // mother volume for detector, now only one rotation is needed for the entire assembly
+  // mother volume for detector, so only one rotation is needed for the entire assembly
   G4RotationMatrix *piRotCal = new G4RotationMatrix;
   piRotCal->rotateX(pointingAngle * deg);
 
-  G4VSolid* caloS = new G4Box("caloS",expHall_x/8, expHall_y/16, 3*expHall_z/4);
+  G4VSolid* caloS = new G4Box("caloS",expHall_x/3, expHall_y/3, expHall_z/3);
   G4LogicalVolume *caloLV = new G4LogicalVolume(caloS,WoMaterial,"caloLV");
   G4VPhysicalVolume *caloPV = 
-    new G4PVPlacement(piRotCal,	G4ThreeVector(0.,3*expHall_z/8,0),caloLV,
+    new G4PVPlacement(piRotCal,	G4ThreeVector(0.0,0.0,expHall_z/10.),caloLV,
 		      "caloPV",worldLV,false,0,checkOverlaps);
 
   // make a set of coordinate axes
@@ -234,210 +213,209 @@ G4VPhysicalVolume *DetectorConstruction::Construct()
 
 
 
-  // crystal
+  // front and rear crystals
   G4Box *ecalCrystalS_f = new G4Box("ecalCrystalS_f", 0.5 * ecal_front_face, 0.5 * ecal_front_face, 0.5 * ecal_front_length);
-  G4Box *ecalCrystalS_r = new G4Box("ecalCrystalS_r", 0.5 * ecal_rear_face, 0.5 * ecal_rear_face, 0.5 * ecal_rear_length);
+  G4Box *ecalCrystalS_r = new G4Box("ecalCrystalS_r", 0.5 * ecal_rear_face,  0.5 * ecal_rear_face, 0.5  * ecal_rear_length);
   G4LogicalVolume *ecalCrystalL_f = new G4LogicalVolume(ecalCrystalS_f, EcalMaterial, "ecalCrystalL_f", 0, 0, 0);
   G4LogicalVolume *ecalCrystalL_r = new G4LogicalVolume(ecalCrystalS_r, EcalMaterial, "ecalCrystalL_r", 0, 0, 0);
+  
 
-  //Detector
-  G4Box *ecalGapS = new G4Box("ecalGapS", ecal_det_size * 0.5, ecal_det_size * 0.5, 0.5 * gap_l);
-  G4Box *ecalDetWindowS = new G4Box("ecalDetWindowS", ecal_det_size * 0.5, ecal_det_size * 0.5, 0.5 * window_l);
-  G4Box *ecalDetS = new G4Box("ecalDetS", ecal_det_size * 0.5, ecal_det_size * 0.5, 0.5 * det_l);
-  G4Box *ecalDetCaseOuterS = new G4Box("ecalDetCaseOuterS", ecal_det_size * 0.5 + Case_l, ecal_det_size * 0.5 + Case_l, 0.5 * (det_l + window_l) + Case_l);
-  G4Box *ecalDetCaseInnerS = new G4Box("ecalDetCaseInnerS", ecal_det_size * 0.5, ecal_det_size * 0.5, 0.5 * (det_l + window_l) + Case_l);
-  G4VSolid *ecalDetCaseS = new G4SubtractionSolid("ecalDetCaseS", ecalDetCaseOuterS, ecalDetCaseInnerS, NULL, G4ThreeVector(0, 0, Case_l));
-  G4LogicalVolume *ecalGapL = new G4LogicalVolume(ecalGapS, PMTGapMaterial, "ecalGapL", 0, 0, 0);
-  G4LogicalVolume *ecalDetWindowL = new G4LogicalVolume(ecalDetWindowS, WindowMaterial, "ecalDetWindowL", 0, 0, 0);
-  G4LogicalVolume *ecalDetL = new G4LogicalVolume(ecalDetS, DeMaterial, "ecalDetL", 0, 0, 0);
-  G4LogicalVolume *ecalDetCaseL = new G4LogicalVolume(ecalDetCaseS, WindowMaterial, "ecalDetCaseL", 0, 0, 0);
+  //wrapper front 5 sided
+  G4Box *ecalWrapper_outerS_f = new G4Box("ecalWrapper_outerS_f", 
+					  0.5 * ecal_front_face + wrapper_gap + wrap_l, 
+					  0.5 * ecal_front_face + wrapper_gap + wrap_l, 
+					  0.5 * ecal_front_length + wrapper_gap + wrap_l);
 
-  //wrapper
-  G4Box *ecalWrapper_outerS_f = new G4Box("ecalWrapper_outerS_f", 0.5 * ecal_front_face + wrapper__gap + 0.1, 0.5 * ecal_front_face + wrapper__gap + 0.1, 0.5 * ecal_front_length + wrapper__gap + 0.1);
-  G4Box *ecalWrapper_innerS_f = new G4Box("ecalWrapper_innerS_f", 0.5 * ecal_front_face + wrapper__gap, 0.5 * ecal_front_face + wrapper__gap, ecal_front_length + wrapper__gap);
-  G4Box *ecalWrapper_outerS_r = new G4Box("ecalWrapper_outerS_r", 0.5 * ecal_rear_face + wrapper__gap + 0.1, 0.5 * ecal_rear_face + wrapper__gap + 0.1, 0.5 * ecal_rear_length + wrapper__gap + 0.1);
-  G4Box *ecalWrapper_innerS_r = new G4Box("ecalWrapper_innerS_r", 0.5 * ecal_rear_face + wrapper__gap, 0.5 * ecal_rear_face + wrapper__gap, ecal_rear_length + wrapper__gap);
-  G4VSolid *ecalWrapperS_f_shell = new G4SubtractionSolid("ecalWrapperS_f_shell", ecalWrapper_outerS_f, ecalWrapper_innerS_f);
-  G4VSolid *ecalWrapperS_r_shell = new G4SubtractionSolid("ecalWrapperS_r_shell", ecalWrapper_outerS_r, ecalWrapper_innerS_r);
-  G4VSolid *ecalWrapperS_f_hallow1 = new G4SubtractionSolid("ecalWrapperS_f_hallow1", ecalWrapperS_f_shell, ecalDetCaseS, NULL, G4ThreeVector(0, 0, (ecal_front_length * 0.5 + gap_l + window_l + det_l * 0.5 + Case_l)));
-  G4VSolid *ecalWrapperS_f_hallow2 = new G4SubtractionSolid("ecalWrapperS_f_hallow2", ecalWrapperS_f_hallow1, ecalDetCaseS, NULL, G4ThreeVector(0, 0, -1 * (ecal_front_length * 0.5 + gap_l + window_l + det_l * 0.5 + Case_l)));
-  G4VSolid *ecalWrapperS_f_hallow3 = new G4SubtractionSolid("ecalWrapperS_f_hallow3", ecalWrapperS_f_hallow2, ecalGapS, NULL, G4ThreeVector(0, 0, -1 * (ecal_front_length * 0.5 + gap_l * 0.5)));
-  G4VSolid *ecalWrapperS_f_hallow4 = new G4SubtractionSolid("ecalWrapperS_f_hallow4", ecalWrapperS_f_hallow3, ecalGapS, NULL, G4ThreeVector(0, 0, (ecal_front_length * 0.5 + gap_l * 0.5)));
-  G4LogicalVolume *ecalWrapperL_f = new G4LogicalVolume(ecalWrapperS_f_hallow4, WrapMaterial, "ecalWrapperL_f", 0, 0, 0);
-  G4LogicalVolume *ecalWrapperL_r = new G4LogicalVolume(ecalWrapperS_r_shell, WrapMaterial, "ecalWrapperL_r", 0, 0, 0);
+  G4Box *ecalWrapper_innerS_f = new G4Box("ecalWrapper_innerS_f", 
+					  0.5 * ecal_front_face + wrapper_gap, 
+					  0.5 * ecal_front_face + wrapper_gap, 
+					  0.5 * ecal_front_length + wrapper_gap);
+
+  G4VSolid *ecalWrapper_shellS_f = new G4SubtractionSolid("ecalWrapper_shellS_f", ecalWrapper_outerS_f, ecalWrapper_innerS_f);  // 6 sided wrapper
+
+  // shift outer wrapper block to cut off front face of wapper to xtal surface
+  G4IntersectionSolid *ecalWrapperS_f = new G4IntersectionSolid("ecalWrapperS_f",ecalWrapper_shellS_f,ecalWrapper_outerS_f,
+								NULL,G4ThreeVector(0,0,wrapper_gap + wrap_l));
+  
+  G4LogicalVolume *ecalWrapperL_f = new G4LogicalVolume(ecalWrapperS_f, WrapMaterial, "ecalWrapperL_f");
+  
 
 
-  // SIPM components
+  // wrapper rear
+  G4Box *ecalWrapper_outerS_r = new G4Box("ecalWrapper_outerS_r", 
+					  0.5 * ecal_rear_face + wrapper_gap + wrap_l, 
+					  0.5 * ecal_rear_face + wrapper_gap + wrap_l, 
+					  0.5 * ecal_rear_length + wrapper_gap + wrap_l);
+  G4Box *ecalWrapper_innerS_r = new G4Box("ecalWrapper_innerS_r", 
+					  0.5 * ecal_rear_face + wrapper_gap, 
+					  0.5 * ecal_rear_face + wrapper_gap, 
+					  0.5 * ecal_rear_length + wrapper_gap);
+
+  G4VSolid *ecalWrapper_shellS_r = new G4SubtractionSolid("ecalWrapper_shellS_r", ecalWrapper_outerS_r, ecalWrapper_innerS_r);  // 6 sided wrapper
+
+  // shift outer wrapper block to cut off front face of wapper to xtal surface
+  G4IntersectionSolid *ecalWrapperS_r = new G4IntersectionSolid("ecalWrapperS_r",ecalWrapper_shellS_r,ecalWrapper_outerS_r,
+								NULL,G4ThreeVector(0,0,-wrapper_gap -wrap_l));
+  
+  G4LogicalVolume *ecalWrapperL_r = new G4LogicalVolume(ecalWrapperS_r, WrapMaterial, "ecalWrapperL_r"); 
+  
+
+
+  // SIPM components: Note that  all sipms are taken to be the same size for now!
   G4double base_l = sipm_size_z	- sipm_window_l;
   G4Box *sipmBaseS = new G4Box("sipmBaseS", sipm_size_x * 0.5, sipm_size_y * 0.5, base_l * 0.5);
   G4Box *sipmTopS = new G4Box("sipmTopS", sipm_size_x * 0.5, sipm_size_y * 0.5, sipm_window_l * 0.5);
-  G4Box *sipmActiveS = new G4Box("sipmSActive", sipm_active_x * 0.5, sipm_active_y * 0.5, sipm_window_l * 0.5);
-  G4VSolid *sipmInActiveS = new G4SubtractionSolid("sipmInactiveS", sipmTopS, sipmActiveS, NULL, G4ThreeVector(0, 0, 0));
+  G4Box *sipmWindowS = new G4Box("sipmWindowS", sipm_active_x * 0.5, sipm_active_y * 0.5, sipm_window_l * 0.5);
+  G4VSolid *sipmBorderS = new G4SubtractionSolid("sipmInactiveS", sipmTopS, sipmWindowS, NULL, G4ThreeVector(0, 0, 0));
 
-  G4LogicalVolume *sipmSActiveL = new G4LogicalVolume(sipmActiveS, WindowMaterial, "sipmSActiveL", 0, 0, 0);
-  G4LogicalVolume *sipmCActiveL = new G4LogicalVolume(sipmActiveS, WindowMaterial, "sipmCActiveL", 0, 0, 0);
-  G4LogicalVolume *sipmFActiveL = new G4LogicalVolume(sipmActiveS, WindowMaterial, "sipmFActiveL", 0, 0, 0);
+  G4LogicalVolume *sipmSWindowL = new G4LogicalVolume(sipmWindowS, WindowMaterial, "sipmSWindowL", 0, 0, 0);
+  G4LogicalVolume *sipmCWindowL = new G4LogicalVolume(sipmWindowS, WindowMaterial, "sipmCWindowL", 0, 0, 0);
+  G4LogicalVolume *sipmFWindowL = new G4LogicalVolume(sipmWindowS, WindowMaterial, "sipmFWindowL", 0, 0, 0);
 
-  G4LogicalVolume *sipmInActiveL = new G4LogicalVolume(sipmInActiveS, WindowMaterial, "sipmInActiveL", 0, 0, 0);
+  G4LogicalVolume *sipmBorderL = new G4LogicalVolume(sipmBorderS, WindowMaterial, "sipmBorderL", 0, 0, 0);
   G4LogicalVolume *sipmBaseL = new G4LogicalVolume(sipmBaseS, DeMaterial, "sipmBaseL", 0, 0, 0);
 
-  // SiPM assembly front 
-  Ta.set(0,0,0);
-  G4AssemblyVolume* sipmFAssembly = new G4AssemblyVolume();
-  Ta.setZ(sipm_window_l * 0.5);                             // 1/2 dept of active area
-  sipmFAssembly->AddPlacedVolume( sipmFActiveL, Ta, &Ra );   // origin is at center of active area at SiPM surface
-  sipmFAssembly->AddPlacedVolume( sipmInActiveL, Ta, &Ra );
-  Ta.setZ( sipm_window_l + base_l*0.5 );
-  sipmFAssembly->AddPlacedVolume( sipmBaseL, Ta, &Ra );
+  // baffle front
+  G4double baffle_z = wrapper_gap + sipm_size_z;
+  G4Box *baffleS_f = new G4Box("baffleS_f", 0.5 * ecal_front_face + wrapper_gap + wrap_l, 
+					    0.5 * ecal_front_face + wrapper_gap + wrap_l, 
+			                    0.5 * (wrapper_gap + sipm_size_z));
+  G4Box *sipmCutoutS = new G4Box("sipmCutoutS", 0.5 * sipm_size_x, 0.5 * sipm_size_y, baffle_z); 
+  G4VSolid *baffle_cutoutS_f = new G4SubtractionSolid("baffle_cutoutS_f",baffleS_f,sipmCutoutS,NULL,G4ThreeVector(0,0,0.5*wrapper_gap));
+  G4LogicalVolume *baffleL_f = new G4LogicalVolume(baffle_cutoutS_f, WrapMaterial, "baffleL_f"); // todo define separate material for baffle  
 
-  // SiPM assembly S-type
+  // SiPM assembly for front, including baffle
   Ta.set(0,0,0);
-  G4AssemblyVolume* sipmSAssembly = new G4AssemblyVolume();
-  Ta.setZ(sipm_window_l * 0.5);                             // 1/2 dept of active area
-  sipmSAssembly->AddPlacedVolume( sipmSActiveL, Ta, &Ra );   // origin is at center of active area at SiPM surface
-  sipmSAssembly->AddPlacedVolume( sipmInActiveL, Ta, &Ra );
-  Ta.setZ( sipm_window_l + base_l*0.5 );
-  sipmSAssembly->AddPlacedVolume( sipmBaseL, Ta, &Ra );
+  G4AssemblyVolume* sipmAssembly_f = new G4AssemblyVolume();
+  sipmAssembly_f->AddPlacedVolume(baffleL_f, Ta, &Ra );        // origin of assembly is at center of the baffle
+  Ta.setZ( 0.5*baffle_z - 0.5*sipm_window_l - wrapper_gap);    // to do: allow separate gap spacing distance for SiPM 
+  sipmAssembly_f->AddPlacedVolume( sipmFWindowL, Ta, &Ra );    // window set back by small gap from xtal/baffle surface
+  sipmAssembly_f->AddPlacedVolume( sipmBorderL, Ta, &Ra );   
+  Ta.setZ( -0.5*baffle_z + 0.5*base_l );                       // measured from back face of baffle
+  sipmAssembly_f->AddPlacedVolume( sipmBaseL, Ta, &Ra );
 
-  // SiPM assembly C-type
+  // baffle rear 
+  G4Box *baffleS_r = new G4Box("baffleS_r", 0.5 * ecal_rear_face + wrapper_gap + wrap_l, 
+					    0.5 * ecal_rear_face + wrapper_gap + wrap_l, 
+			                    0.5 * (wrapper_gap + sipm_size_z));
+  Ta.set(0, ecal_rear_face/4.0, 0.5*wrapper_gap);
+  G4VSolid *baffle_cutout1S_r = new G4SubtractionSolid("baffle_cutout1S_r",baffleS_r,sipmCutoutS,NULL,Ta);
+  Ta.set(0, -ecal_rear_face/4.0, 0.5*wrapper_gap);
+  G4VSolid *baffle_cutout2S_r = new G4SubtractionSolid("baffle_cutout2S_r",baffle_cutout1S_r,sipmCutoutS,NULL,Ta);
+  G4LogicalVolume *baffleL_r = new G4LogicalVolume(baffle_cutout2S_r, WrapMaterial, "baffleL_r"); // todo define separate material for baffle  
+
+  // SiPM assembly for rear, including baffle
   Ta.set(0,0,0);
-  G4AssemblyVolume* sipmCAssembly = new G4AssemblyVolume();
-  Ta.setZ(sipm_window_l * 0.5);                             // 1/2 dept of active area
-  sipmCAssembly->AddPlacedVolume( sipmCActiveL, Ta, &Ra );   // origin is at center of active area at SiPM surface
-  sipmCAssembly->AddPlacedVolume( sipmInActiveL, Ta, &Ra );
-  Ta.setZ( sipm_window_l + base_l*0.5 );
-  sipmCAssembly->AddPlacedVolume( sipmBaseL, Ta, &Ra );
+  G4AssemblyVolume* sipmAssembly_r = new G4AssemblyVolume();
+  sipmAssembly_r->AddPlacedVolume(baffleL_r, Ta, &Ra );       // origin of assembly is at center of the baffle
+  // SiPM back S-type
+  Ta.set(0, ecal_rear_face/4.0, 0.5*baffle_z - 0.5*sipm_window_l - wrapper_gap); 
+  sipmAssembly_r->AddPlacedVolume( sipmSWindowL, Ta, &Ra );
+  sipmAssembly_r->AddPlacedVolume( sipmBorderL, Ta, &Ra );
+  Ta.set(0, ecal_rear_face/4.0, -0.5*baffle_z + 0.5*base_l );                      // measured from back face of baffle
+  sipmAssembly_r->AddPlacedVolume( sipmBaseL, Ta, &Ra );
+  // SiPM back C-type
+  Ta.set(0, -ecal_rear_face/4.0, 0.5*baffle_z - 0.5*sipm_window_l - wrapper_gap); 
+  sipmAssembly_r->AddPlacedVolume( sipmCWindowL, Ta, &Ra );
+  sipmAssembly_r->AddPlacedVolume( sipmBorderL, Ta, &Ra );
+  Ta.set(0, -ecal_rear_face/4.0, -0.5*baffle_z + 0.5*base_l );                      // measured from back face of baffle
+  sipmAssembly_r->AddPlacedVolume( sipmBaseL, Ta, &Ra );
 
-  // testing
-  //Ta.set(0,0,0);
-  //sipmSAssembly->MakeImprint(caloLV, Ta, &Ra);
-  //Ta.set(0,-2*sipm_size_x,0);
-  //sipmCAssembly->MakeImprint(caloLV, Ta, &Ra);
+
 
   /////// module assembly ///////
-  // crystal assembly
+
+  // crystal + wrapper assemblies
   Ta.set(0,0,0);
   G4AssemblyVolume* xtalAssembly = new G4AssemblyVolume();
-  Ta.setZ(ecal_front_length * 0.5); 
+  Ta.setZ(ecal_front_length * 0.5);                          // align face of front Xtal at z=0
   xtalAssembly->AddPlacedVolume( ecalCrystalL_f, Ta, &Ra );  // origin is at center of front xtal face
   xtalAssembly->AddPlacedVolume( ecalWrapperL_f, Ta, &Ra );
   
-  Ta.setZ(ecal_front_length + wrapper_gap*2 + wrap_l*2 + ecal_z_gap + 0.5 * ecal_rear_length);
+  Ta.setZ(ecal_front_length + wrapper_gap*2 + wrap_l*2 + ecal_z_gap + 0.5 * ecal_rear_length);   // rear xtal, placement relative face of front xtal
   xtalAssembly->AddPlacedVolume( ecalCrystalL_r, Ta, &Ra );
   xtalAssembly->AddPlacedVolume( ecalWrapperL_r, Ta, &Ra ); 
 
-  // front sipm, center on front face
-  Ta.set(0,0,-0.5*sipm_window_l-sipm_gap);
-  Ra.rotateX(180 * deg);
-  xtalAssembly->AddPlacedAssembly(sipmFAssembly, Ta, &Ra);
+  // add front sipm assembly
+  Ta.set(0,0,-0.5*baffle_z);
+  xtalAssembly->AddPlacedAssembly(sipmAssembly_f, Ta, &Ra);
 
-  // rear sipms, place along horizontal center line
-  Ra=G4RotationMatrix();
-  Ta.set(-ecal_rear_face/4,0,0.5*sipm_window_l+ecal_front_length + wrapper_gap*2 + wrap_l*2 + ecal_z_gap + ecal_rear_length+sipm_gap);
-  xtalAssembly->AddPlacedAssembly(sipmSAssembly, Ta, &Ra);
-  Ta.set(ecal_rear_face/4,0,0.5*sipm_window_l+ecal_front_length + wrapper_gap*2 + wrap_l*2 + ecal_z_gap + ecal_rear_length+sipm_gap);
-  xtalAssembly->AddPlacedAssembly(sipmCAssembly, Ta, &Ra);
+  // add rear sipm assembly
+  Ra.rotateX(180.*deg);
+  Ta.set(0,0,ecal_front_length + wrapper_gap*2 + wrap_l*2 + ecal_z_gap + ecal_rear_length + 0.5*baffle_z);
+  xtalAssembly->AddPlacedAssembly(sipmAssembly_r, Ta, &Ra);
+  
+  // set surface properties
+  G4LogicalSkinSurface *crystalSurface_f = new G4LogicalSkinSurface("crystalSurface_f", ecalCrystalL_f, fIdealPolishedOpSurface);
+  G4LogicalSkinSurface *crystalSurface_r = new G4LogicalSkinSurface("crystalSurface_r", ecalCrystalL_r, fIdealPolishedOpSurface);
+
+  G4LogicalSkinSurface *ecalWrapperSurface_f = new G4LogicalSkinSurface("ecalWrapperSurface_f", ecalWrapperL_f, fFiberWrapSurface);   // to do: change 'fiber' name
+  G4LogicalSkinSurface *ecalWrapperSurface_r = new G4LogicalSkinSurface("ecalWrapperSurface_r", ecalWrapperL_r, fFiberWrapSurface);
+  G4LogicalSkinSurface *sipmFWindowSurface = new G4LogicalSkinSurface("sipmFWindowSurface", sipmFWindowL, fPMTSurface);  // to do: change "PMT" name
+  G4LogicalSkinSurface *sipmSWindowSurface = new G4LogicalSkinSurface("sipmFWindowSurface", sipmSWindowL, fPMTSurface);
+  G4LogicalSkinSurface *sipmCWindowSurface = new G4LogicalSkinSurface("sipmFWindowSurface", sipmCWindowL, fPMTSurface);
+  G4LogicalSkinSurface *sipmBorderSurface = new G4LogicalSkinSurface("sipmBorderSurface", sipmBorderL, fPMTSurface);  // change to case material?
+
+
+  G4LogicalSkinSurface *sipmBase_Surface = new G4LogicalSkinSurface("sipmBase_Surface", sipmBaseL, fPMTCaseSurface);  // to do: channge "PMT" name
 
   // module placement in caloLV
   Ta.set(0,0,0);
-  xtalAssembly->MakeImprint(caloLV, Ta, &Ra);
+  Ra.rotateX(-180.*deg);  // undo rotation
+  xtalAssembly->MakeImprint(caloLV, Ta, &Ra, 0, checkOverlaps);
 
-  ///////////////
-
-
-
-
-  // ECAL physical placement
-  const int NECAL_CRYST = 1; //6400; //2500;
-  G4VPhysicalVolume *ecalCrystalP_f[NECAL_CRYST];
-  //G4VPhysicalVolume *ecalCrystalP_r[NECAL_CRYST];
-  G4VPhysicalVolume *ecalWrapperP_f[NECAL_CRYST];
-  //G4VPhysicalVolume *ecalWrapperP_r[NECAL_CRYST];
-  G4VPhysicalVolume *ecalGapP_ff[NECAL_CRYST];
-  G4VPhysicalVolume *ecalGapP_fr[NECAL_CRYST];
-  G4VPhysicalVolume *ecalDetWindowP_ff[NECAL_CRYST];
-  G4VPhysicalVolume *ecalDetWindowP_fr[NECAL_CRYST];
-  G4VPhysicalVolume *ecalDetCaseP_ff[NECAL_CRYST];
-  G4VPhysicalVolume *ecalDetCaseP_fr[NECAL_CRYST];
-
-  G4VPhysicalVolume *ecalDetP_ff[NECAL_CRYST];
-  G4VPhysicalVolume *ecalDetP_fr[NECAL_CRYST];
-
-  G4LogicalSkinSurface *ecalWrapperSurface_f = new G4LogicalSkinSurface("ecalWrapperSurface_f", ecalWrapperL_f, fFiberWrapSurface);
-  G4LogicalSkinSurface *DetSurface = new G4LogicalSkinSurface("DetSurface", ecalDetL, fPMTSurface);
-  G4LogicalSkinSurface *DetCase_Surface = new G4LogicalSkinSurface("DetCase_Surface", ecalDetCaseL, fPMTCaseSurface);
-  G4LogicalSkinSurface *crystalSurface = new G4LogicalSkinSurface("crystalSurface", ecalCrystalL_f, fIdealPolishedOpSurface);
-  //G4LogicalBorderSurface* FilterSurface_ff[NECAL_CRYST]; 
-
-  char name[60];
-  G4double x_pos[NECAL_CRYST];
-  G4double y_pos[NECAL_CRYST];
-  int nArrayECAL = (int)sqrt(NECAL_CRYST);
-  int iCrystal;
-  for (int iX = 0; iX < nArrayECAL; iX++)
-  {
-    for (int iY = 0; iY < nArrayECAL; iY++)
-    {
-
-      G4RotationMatrix *piRotEcal = new G4RotationMatrix;
-      piRotEcal->rotateX(pointingAngle * deg);
-      G4RotationMatrix *piRotEcal_op = new G4RotationMatrix;
-      piRotEcal_op->rotateX((pointingAngle + 180) * deg);
-
-      iCrystal = nArrayECAL * iX + iY;
-      x_pos[iCrystal] = (iX - nArrayECAL / 2) * (ecal_front_face + alveola_thickness);
-      y_pos[iCrystal] = (iY - nArrayECAL / 2) * (ecal_front_face / cos(pointingAngle * deg) + alveola_thickness);
-      if (nArrayECAL / 2 != 0)
-      {
-        x_pos[iCrystal] -= alveola_thickness;
-        y_pos[iCrystal] -= alveola_thickness;
+  if (narray>1) {
+    G4double x = 0 , y = 0;
+    G4double dx = ecal_front_face  +  wrapper_gap*2 + wrap_l*2;
+    G4double dy = dx;
+    int ncol = (int) sqrt(narray);
+    for (int i=1; i<narray; i++){
+      x+=dx;
+      if (i % ncol == 0){
+	x=0;
+	y+=dy;
       }
-      cout << " x_pos [" << iCrystal << "] = " << x_pos[iCrystal] << " :: y_pos[" << iCrystal << "] = " << y_pos[iCrystal] << " :: angle = [" << pointingAngle * iX << ", " << pointingAngle * iY << "] " << endl;
-
-      //---------------------- crystal and wrapper --------------------------
-      sprintf(name, "ecalCrystalP_f_%d", iCrystal);
-      ecalCrystalP_f[iCrystal] = new G4PVPlacement(piRotEcal, G4ThreeVector(x_pos[iCrystal], y_pos[iCrystal], ecal_timing_distance + ecal_front_length * 0.5), ecalCrystalL_f, name, worldLV, false, 0, checkOverlaps);
-      sprintf(name, "ecalWrapperP_f_%d", iCrystal);
-      ecalWrapperP_f[iCrystal] = new G4PVPlacement(piRotEcal, G4ThreeVector(x_pos[iCrystal], y_pos[iCrystal], ecal_timing_distance + ecal_front_length * 0.5), ecalWrapperL_f, name, worldLV, false, 0, checkOverlaps);
-
-      //---------------------- detectors at both ends --------------------------
-      sprintf(name, "ecalDetP_ff_%d", iCrystal);
-      ecalDetP_ff[iCrystal] = new G4PVPlacement(piRotEcal, G4ThreeVector(x_pos[iCrystal], y_pos[iCrystal] - (0.5 * ecal_front_length + gap_l + window_l + det_l * 0.5) * sin(pointingAngle * deg), ecal_timing_distance + ecal_front_length * 0.5 - (ecal_front_length * 0.5 + gap_l + window_l + det_l * 0.5) * cos(pointingAngle * deg)), ecalDetL, name, worldLV, false, 0, checkOverlaps);
-      sprintf(name, "ecalDetP_fr_%d", iCrystal);
-      ecalDetP_fr[iCrystal] = new G4PVPlacement(piRotEcal, G4ThreeVector(x_pos[iCrystal], y_pos[iCrystal] + (0.5 * ecal_front_length + gap_l + window_l + det_l * 0.5) * sin(pointingAngle * deg), ecal_timing_distance + ecal_front_length * 0.5 + (ecal_front_length * 0.5 + gap_l + window_l + det_l * 0.5) * cos(pointingAngle * deg)), ecalDetL, name, worldLV, false, 0, checkOverlaps);
-
-      //---------------------- gaps, SiPM at both ends --------------------------
-      sprintf(name, "ecalGapP_ff_%d", iCrystal);
-      ecalGapP_ff[iCrystal] = new G4PVPlacement(piRotEcal, G4ThreeVector(x_pos[iCrystal], y_pos[iCrystal] - (0.5 * ecal_front_length + gap_l * 0.5) * sin(pointingAngle * deg), ecal_timing_distance + ecal_front_length * 0.5 - (ecal_front_length * 0.5 + gap_l * 0.5) * cos(pointingAngle * deg)), ecalGapL, name, worldLV, false, 0, checkOverlaps);
-      sprintf(name, "ecalGapP_fr_%d", iCrystal);
-      ecalGapP_fr[iCrystal] = new G4PVPlacement(piRotEcal, G4ThreeVector(x_pos[iCrystal], y_pos[iCrystal] + (0.5 * ecal_front_length + gap_l * 0.5) * sin(pointingAngle * deg), ecal_timing_distance + ecal_front_length * 0.5 + (ecal_front_length * 0.5 + gap_l * 0.5) * cos(pointingAngle * deg)), ecalGapL, name, worldLV, false, 0, checkOverlaps);
-      sprintf(name, "ecalDetWindowP_ff_%d", iCrystal);
-      ecalDetWindowP_ff[iCrystal] = new G4PVPlacement(piRotEcal, G4ThreeVector(x_pos[iCrystal], y_pos[iCrystal] - (0.5 * ecal_front_length + gap_l + window_l * 0.5) * sin(pointingAngle * deg), ecal_timing_distance + ecal_front_length * 0.5 - (ecal_front_length * 0.5 + gap_l + window_l * 0.5) * cos(pointingAngle * deg)), ecalDetWindowL, name, worldLV, false, 0, checkOverlaps);
-      sprintf(name, "ecalDetWindowP_fr_%d", iCrystal);
-      ecalDetWindowP_fr[iCrystal] = new G4PVPlacement(piRotEcal, G4ThreeVector(x_pos[iCrystal], y_pos[iCrystal] + (0.5 * ecal_front_length + gap_l + window_l * 0.5) * sin(pointingAngle * deg), ecal_timing_distance + ecal_front_length * 0.5 + (ecal_front_length * 0.5 + gap_l + window_l * 0.5) * cos(pointingAngle * deg)), ecalDetWindowL, name, worldLV, false, 0, checkOverlaps);
-      sprintf(name, "ecalDetCaseP_ff_%d", iCrystal);
-      ecalDetCaseP_ff[iCrystal] = new G4PVPlacement(piRotEcal, G4ThreeVector(x_pos[iCrystal], y_pos[iCrystal] - (0.5 * ecal_front_length + gap_l + window_l + det_l * 0.5 + Case_l) * sin(pointingAngle * deg), ecal_timing_distance + ecal_front_length * 0.5 - (ecal_front_length * 0.5 + gap_l + window_l + det_l * 0.5 + Case_l) * cos(pointingAngle * deg)), ecalDetCaseL, name, worldLV, false, 0, checkOverlaps);
-      sprintf(name, "ecalDetCaseP_fr_%d", iCrystal);
-      ecalDetCaseP_fr[iCrystal] = new G4PVPlacement(piRotEcal_op, G4ThreeVector(x_pos[iCrystal], y_pos[iCrystal] + (0.5 * ecal_front_length + gap_l + window_l + det_l * 0.5 + Case_l) * sin(pointingAngle * deg), ecal_timing_distance + ecal_front_length * 0.5 + (ecal_front_length * 0.5 + gap_l + window_l + det_l * 0.5 + Case_l) * cos(pointingAngle * deg)), ecalDetCaseL, name, worldLV, false, 0, checkOverlaps);
+      Ta.set(x,y,0);
+      xtalAssembly->MakeImprint(caloLV, Ta, &Ra);
     }
   }
+
+  ///////////////
 
   //-----------------------------------------------------
   //------------- sensitive detector & surface --------------
   //-----------------------------------------------------
 
   auto sdman = G4SDManager::GetSDMpointer();
-  auto fDRDetSD = new DR_PMTSD("/DR_Det");
-  sdman->AddNewDetector(fDRDetSD);
-  ecalDetL->SetSensitiveDetector(fDRDetSD);
+
+  auto fSDsipmF = new SD_sipmF("/ECAL_sipmF");
+  sdman->AddNewDetector(fSDsipmF);
+  sipmFWindowL->SetSensitiveDetector(fSDsipmF);
+
+  auto fSDsipmC = new SD_sipmC("/ECAL_sipmC");
+  sdman->AddNewDetector(fSDsipmC);
+  sipmCWindowL->SetSensitiveDetector(fSDsipmC);
+
+  auto fSDsipmS = new SD_sipmS("/ECAL_sipmS");
+  sdman->AddNewDetector(fSDsipmS);
+  sipmSWindowL->SetSensitiveDetector(fSDsipmS);
+
+  auto fSDCrystalF = new SD_CrystalF("/ECAL_CrystalF");
+  sdman->AddNewDetector(fSDCrystalF);
+  ecalCrystalL_f->SetSensitiveDetector(fSDCrystalF);
+
+  auto fSDCrystalR = new SD_CrystalR("/ECAL_CrystalR");
+  sdman->AddNewDetector(fSDCrystalR);
+  ecalCrystalL_r->SetSensitiveDetector(fSDCrystalR);
 
   //-----------------------------------------------------
   //------------- Visualization attributes --------------
   //-----------------------------------------------------
 
   G4Colour white(1.00, 1.00, 1.00); // white
-  G4Colour gray(0.50, 0.50, 0.50);  // gray
-  G4Colour gray3(0.30, 0.30, 0.30);  // gray3
+  G4Colour gray8(0.80, 0.80, 0.80);  
+  G4Colour gray(0.50, 0.50, 0.50);  
+  G4Colour gray3(0.30, 0.30, 0.30); 
   G4Colour black(0.00, 0.00, 0.00); // black
   G4Colour red(1.00, 0.00, 0.00);  
   G4Colour darkred(0.50, 0.00, 0.00);  
@@ -449,13 +427,15 @@ G4VPhysicalVolume *DetectorConstruction::Construct()
   G4Colour brightube(209,159,232);
   G4Colour lightblue(0.69, 0.89, 1.0);
   G4Colour cyan(0.00, 1.00, 1.00);    // cyan
+  G4Colour cyanA1(0.00, 1.00, 1.00, 0.1);    
+
   G4Colour air(0.90, 0.90, 1.00);    
   G4Colour magenta(1.00, 0.00, 1.00);  // magenta
   G4Colour yellow(1.00, 1.0, 0.00);    // yellow
   G4Colour brass(0.80, 0.60, 0.40);    // brass
   G4Colour brown(0.70, 0.40, 0.10);    // brown
 
-  G4VisAttributes *VisAttWorld = new G4VisAttributes(white);
+  G4VisAttributes *VisAttWorld = new G4VisAttributes(black);
   VisAttWorld->SetVisibility(true);
   VisAttWorld->SetForceWireframe(true);
   worldLV->SetVisAttributes(VisAttWorld);
@@ -479,45 +459,49 @@ G4VPhysicalVolume *DetectorConstruction::Construct()
   VisAttGap->SetVisibility(false);
   VisAttGap->SetForceWireframe(true);
 
-  G4VisAttributes *VisAttecalDet = new G4VisAttributes(gray);
+  G4VisAttributes *VisAttecalDet = new G4VisAttributes(gray8);
   VisAttecalDet->SetVisibility(true);
   VisAttecalDet->SetForceWireframe(true);
-  ecalDetL->SetVisAttributes(VisAttecalDet);
-  ecalGapL->SetVisAttributes(VisAttecalDet);
+  //ecalDetL->SetVisAttributes(VisAttecalDet);
+  //ecalGapL->SetVisAttributes(VisAttecalDet);
   VisAttecalDet->SetForceWireframe(false);
   sipmBaseL->SetVisAttributes(VisAttecalDet);
 
   G4VisAttributes *VisAttecalDetW = new G4VisAttributes(red);
   VisAttecalDetW->SetVisibility(true);
   VisAttecalDetW->SetForceWireframe(true);
-  ecalDetWindowL->SetVisAttributes(VisAttecalDetW);
+  //ecalDetWindowL->SetVisAttributes(VisAttecalDetW);
 
   G4VisAttributes *Visabs = new G4VisAttributes(brass);
   Visabs->SetVisibility(true);
   Visabs->SetForceWireframe(true);
 
-  G4VisAttributes *Viswrap = new G4VisAttributes(cyan);
-  Viswrap->SetVisibility(true);
-  Viswrap->SetForceWireframe(true);
-  ecalWrapperL_f->SetVisAttributes(Viswrap);
-  ecalWrapperL_r->SetVisAttributes(Viswrap);
+  G4VisAttributes *Viswrapf = new G4VisAttributes(cyanA1);
+  Viswrapf->SetVisibility(true);
+  Viswrapf->SetForceWireframe(false);
+  ecalWrapperL_f->SetVisAttributes(Viswrapf);
 
-  G4VisAttributes *VisSipmSActive = new G4VisAttributes(green);
-  VisSipmSActive->SetVisibility(true);
-  VisSipmSActive->SetForceWireframe(false);
-  sipmSActiveL->SetVisAttributes(VisSipmSActive);
-  sipmFActiveL->SetVisAttributes(VisSipmSActive);
+  G4VisAttributes *Viswrapr = new G4VisAttributes(cyanA1);
+  Viswrapr->SetVisibility(true);
+  Viswrapr->SetForceWireframe(false);
+  ecalWrapperL_r->SetVisAttributes(Viswrapr);
 
-  G4VisAttributes *VisSipmCActive = new G4VisAttributes(magenta);
-  VisSipmCActive->SetVisibility(true);
-  VisSipmCActive->SetForceWireframe(false);
-  sipmCActiveL->SetVisAttributes(VisSipmCActive);
+  G4VisAttributes *VisSipmSWindow = new G4VisAttributes(green);
+  VisSipmSWindow->SetVisibility(true);
+  VisSipmSWindow->SetForceWireframe(false);
+  sipmSWindowL->SetVisAttributes(VisSipmSWindow);
+  sipmFWindowL->SetVisAttributes(VisSipmSWindow);
+
+  G4VisAttributes *VisSipmCWindow = new G4VisAttributes(magenta);
+  VisSipmCWindow->SetVisibility(true);
+  VisSipmCWindow->SetForceWireframe(false);
+  sipmCWindowL->SetVisAttributes(VisSipmCWindow);
 
 
-  G4VisAttributes *VisSipmInActive = new G4VisAttributes(darkred);
-  VisSipmInActive->SetVisibility(true);
-  VisSipmInActive->SetForceWireframe(false);
-  sipmInActiveL->SetVisAttributes(VisSipmInActive);
+  G4VisAttributes *VisSipmBorder = new G4VisAttributes(darkred);
+  VisSipmBorder->SetVisibility(true);
+  VisSipmBorder->SetForceWireframe(false);
+  sipmBorderL->SetVisAttributes(VisSipmBorder);
 
 
   G4VisAttributes *VisFiber = new G4VisAttributes(lightblue);
@@ -550,41 +534,6 @@ void DetectorConstruction::initializeMaterials()
   }
   G4cout << "Wo. material: " << WoMaterial << G4endl;
 
-  /*
-  CoMaterial = NULL;
-  if (core_material == 1)
-    CoMaterial = MyMaterials::Quartz();
-  else if (core_material == 2)
-    CoMaterial = MyMaterials::SiO2();
-  else if (core_material == 3)
-    CoMaterial = MyMaterials::SiO2_Ce();
-  else if (core_material == 4)
-    CoMaterial = MyMaterials::LuAG_Ce();
-  else if (core_material == 5)
-    CoMaterial = MyMaterials::YAG_Ce();
-  else if (core_material == 6)
-    CoMaterial = MyMaterials::LSO();
-  else if (core_material == 7)
-    CoMaterial = MyMaterials::LYSO();
-  else if (core_material == 8)
-    CoMaterial = MyMaterials::LuAG_undoped();
-  else if (core_material == 9)
-    CoMaterial = MyMaterials::GAGG_Ce();
-  else if (core_material == 11)
-    CoMaterial = MyMaterials::LuAG_Pr();
-  else if (core_material == 12)
-    CoMaterial = MyMaterials::PbF2();
-  else if (core_material == 13)
-    CoMaterial = MyMaterials::PlasticBC408();
-  else if (core_material == 14)
-    CoMaterial = MyMaterials::PlasticBC418();
-  else
-  {
-    G4cerr << "<DetectorConstructioninitializeMaterials>: Invalid fibre clad material specifier " << core_material << G4endl;
-    exit(-1);
-  }
-  G4cout << "Co. material: " << CoMaterial << G4endl;
-*/
 
   EcalMaterial = NULL;
   if (ecal_material == 1)
@@ -630,135 +579,7 @@ void DetectorConstruction::initializeMaterials()
   }
   G4cout << "ECAL material: " << EcalMaterial << G4endl;
 
-  /************************************************************************************/
-  /*
-  ScintiMaterial = NULL;
-  if (scinti_material == 1)
-    ScintiMaterial = MyMaterials::Quartz();
-  else if (scinti_material == 2)
-    ScintiMaterial = MyMaterials::SiO2();
-  else if (scinti_material == 3)
-    ScintiMaterial = MyMaterials::SiO2_Ce();
-  else if (scinti_material == 4)
-    ScintiMaterial = MyMaterials::LuAG_Ce();
-  else if (scinti_material == 5)
-    ScintiMaterial = MyMaterials::YAG_Ce();
-  else if (scinti_material == 6)
-    ScintiMaterial = MyMaterials::LSO();
-  else if (scinti_material == 7)
-    ScintiMaterial = MyMaterials::LYSO();
-  else if (scinti_material == 8)
-    ScintiMaterial = MyMaterials::LuAG_undoped();
-  else if (scinti_material == 9)
-    ScintiMaterial = MyMaterials::GAGG_Ce();
-  else if (scinti_material == 10)
-    ScintiMaterial = MyMaterials::LuAG_Pr();
-  else if (scinti_material == 11)
-    ScintiMaterial = MyMaterials::PbF2();
-  else if (scinti_material == 12)
-    ScintiMaterial = MyMaterials::PlasticBC408();
-  else if (scinti_material == 13)
-    ScintiMaterial = MyMaterials::PlasticBC418();
-  else if (scinti_material == 14)
-    ScintiMaterial = MyMaterials::PWO();
-  else if (scinti_material == 15)
-    ScintiMaterial = MyMaterials::Acrylic();
-  else if (scinti_material == 16)
-    ScintiMaterial = MyMaterials::copper();
-  else if (scinti_material == 17)
-    ScintiMaterial = MyMaterials::EJ200();
-  else
-  {
-    G4cerr << "<DetectorConstructioninitializeMaterials>: Invalid Scinti material specifier " << scinti_material << G4endl;
-    exit(-1);
-  }
-*/
 
-  /*
-  CherencMaterial = NULL;
-  if (Cherenc_material == 1)
-    CherencMaterial = MyMaterials::Quartz();
-  else if (Cherenc_material == 2)
-    CherencMaterial = MyMaterials::SiO2();
-  else if (Cherenc_material == 3)
-    CherencMaterial = MyMaterials::SiO2_Ce();
-  else if (Cherenc_material == 4)
-    CherencMaterial = MyMaterials::LuAG_Ce();
-  else if (Cherenc_material == 5)
-    CherencMaterial = MyMaterials::YAG_Ce();
-  else if (Cherenc_material == 6)
-    CherencMaterial = MyMaterials::LSO();
-  else if (Cherenc_material == 7)
-    CherencMaterial = MyMaterials::LYSO();
-  else if (Cherenc_material == 8)
-    CherencMaterial = MyMaterials::LuAG_undoped();
-  else if (Cherenc_material == 9)
-    CherencMaterial = MyMaterials::GAGG_Ce();
-  else if (Cherenc_material == 10)
-    CherencMaterial = MyMaterials::LuAG_Pr();
-  else if (Cherenc_material == 11)
-    CherencMaterial = MyMaterials::PbF2();
-  else if (Cherenc_material == 12)
-    CherencMaterial = MyMaterials::PlasticBC408();
-  else if (Cherenc_material == 13)
-    CherencMaterial = MyMaterials::PlasticBC418();
-  else if (Cherenc_material == 14)
-    CherencMaterial = MyMaterials::PWO();
-  else if (Cherenc_material == 15)
-    CherencMaterial = MyMaterials::Acrylic();
-  else if (Cherenc_material == 16)
-    CherencMaterial = MyMaterials::copper();
-  else if (Cherenc_material == 17)
-    CherencMaterial = MyMaterials::EJ200();
-  else
-  {
-    G4cerr << "<DetectorConstructioninitializeMaterials>: Invalid CherencMaterial  material specifier " << Cherenc_material << G4endl;
-    exit(-1);
-  }
-*/
-
-  /*
-  CherenpMaterial = NULL;
-  if (Cherenp_material == 1)
-    CherenpMaterial = MyMaterials::Quartz();
-  else if (Cherenp_material == 2)
-    CherenpMaterial = MyMaterials::SiO2();
-  else if (Cherenp_material == 3)
-    CherenpMaterial = MyMaterials::SiO2_Ce();
-  else if (Cherenp_material == 4)
-    CherenpMaterial = MyMaterials::LuAG_Ce();
-  else if (Cherenp_material == 5)
-    CherenpMaterial = MyMaterials::YAG_Ce();
-  else if (Cherenp_material == 6)
-    CherenpMaterial = MyMaterials::LSO();
-  else if (Cherenp_material == 7)
-    CherenpMaterial = MyMaterials::LYSO();
-  else if (Cherenp_material == 8)
-    CherenpMaterial = MyMaterials::LuAG_undoped();
-  else if (Cherenp_material == 9)
-    CherenpMaterial = MyMaterials::GAGG_Ce();
-  else if (Cherenp_material == 10)
-    CherenpMaterial = MyMaterials::LuAG_Pr();
-  else if (Cherenp_material == 11)
-    CherenpMaterial = MyMaterials::PbF2();
-  else if (Cherenp_material == 12)
-    CherenpMaterial = MyMaterials::PlasticBC408();
-  else if (Cherenp_material == 13)
-    CherenpMaterial = MyMaterials::PlasticBC418();
-  else if (Cherenp_material == 14)
-    CherenpMaterial = MyMaterials::PWO();
-  else if (Cherenp_material == 15)
-    CherenpMaterial = MyMaterials::Acrylic();
-  else if (Cherenp_material == 16)
-    CherenpMaterial = MyMaterials::copper();
-  else if (Cherenp_material == 17)
-    CherenpMaterial = MyMaterials::EJ200();
-  else
-  {
-    G4cerr << "<DetectorConstructioninitializeMaterials>: Invalid Cherenp Material material specifier " << Cherenp_material << G4endl;
-    exit(-1);
-  }
-*/
 
   WrapMaterial = NULL;
   if (wrap_material == 1)

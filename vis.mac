@@ -28,7 +28,7 @@
 /vis/viewer/set/viewpointThetaPhi 270 0 deg 
 
 # Specify zoom value:
-/vis/viewer/zoomTo 10
+/vis/viewer/zoomTo 6
 
 # Specify style (surface or wireframe):
 #/vis/viewer/set/style wireframe
@@ -87,8 +87,10 @@
 
 /units/list
 
-/gps/energy 120 GeV
+/gps/energy 10 GeV
 /gps/particle pi-
+#/gps/particle e-
+
 /gps/pos/type Plane
 /gps/pos/shape Square
 /gps/pos/centre 0 0 -10 mm

@@ -76,6 +76,8 @@ public:
   float depositedEnergySolenoid;
   float depositedEnergyWorld;
 
+  float depositedEnergyEcalFront;
+
   float depositedIonEnergyTotal;
   float depositedIonEnergyTiming_f;
   float depositedIonEnergyTiming_r;

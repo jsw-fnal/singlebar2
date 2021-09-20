@@ -76,7 +76,6 @@ SteppingAction::~SteppingAction()
 
 void SteppingAction::UserSteppingAction(const G4Step *theStep)
 {
-  
 
   G4Track *theTrack = theStep->GetTrack();
 
@@ -119,25 +118,6 @@ void SteppingAction::UserSteppingAction(const G4Step *theStep)
   {
     CreateTree::Instance()->depositedEnergyEscapeWorld += (theStep->GetPostStepPoint())->GetKineticEnergy() / GeV;
   }
-  ///
-  if (particleType != G4OpticalPhoton::OpticalPhotonDefinition()) return;
-  G4String processName = theTrack->GetCreatorProcess()->GetProcessName();
-  float photWL = MyMaterials::fromEvToNm(theTrack->GetTotalEnergy() / eV);
-  if (photWL > 1000 || photWL < 300) {
-    theTrack->SetTrackStatus(fKillTrackAndSecondaries);
-    return;
-  }
-
-
-  if (!propagateCerenkov && (processName == "Cerenkov"))
-    theTrack->SetTrackStatus(fKillTrackAndSecondaries);
-  
-  if (!propagateScintillation && (processName == "Scintillation"))
-    theTrack->SetTrackStatus(fKillTrackAndSecondaries);
-
-  return;
-
-  ///
 
   //------------- optical photon -------------
   if (particleType == G4OpticalPhoton::OpticalPhotonDefinition())

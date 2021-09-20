@@ -37,16 +37,16 @@ void DR_PMTSD::Initialize(G4HCofThisEvent *HCE)
 }
 
 G4bool
-DR_PMTSD::ProcessHits( G4Step*       aStep,
+DR_PMTSD::ProcessHits( G4Step*       theStep,
                                    G4TouchableHistory*  )
 {
     return false;
 }
 G4bool
-DR_PMTSD::ProcessHits_constStep( const G4Step* aStep, G4TouchableHistory* )
+DR_PMTSD::ProcessHits_constStep( const G4Step* theStep, G4TouchableHistory* )
 {
 
-  G4Track *theTrack = aStep->GetTrack();
+  G4Track *theTrack = theStep->GetTrack();
   float photWL = MyMaterials::fromEvToNm(theTrack->GetTotalEnergy() / CLHEP::eV);
 
   if (theTrack->GetDefinition() != G4OpticalPhoton::OpticalPhotonDefinition())
@@ -57,11 +57,11 @@ DR_PMTSD::ProcessHits_constStep( const G4Step* aStep, G4TouchableHistory* )
   if (true /*processName == "Cerenkov"*/)
   {
     //std::cout<<"SD detected"<<std::endl;
-    G4StepPoint *thePrePointsd = aStep->GetPreStepPoint();
+    G4StepPoint *thePrePointsd = theStep->GetPreStepPoint();
     G4VPhysicalVolume *thePrePVsd = thePrePointsd->GetPhysicalVolume();
     G4String thePrePVNamesd = thePrePVsd->GetName();
 
-    G4StepPoint *thePostPointsd = aStep->GetPostStepPoint();
+    G4StepPoint *thePostPointsd = theStep->GetPostStepPoint();
     G4VPhysicalVolume *thePostPVsd = thePostPointsd->GetPhysicalVolume();
     G4String thePostPVNamesd = thePostPVsd->GetName();
 
@@ -70,7 +70,7 @@ DR_PMTSD::ProcessHits_constStep( const G4Step* aStep, G4TouchableHistory* )
       DR_PMTHit* hit = new DR_PMTHit(0);
       hit->AddEnergy(theTrack->GetTotalEnergy());
       hit->IncPhotonCount(); // increment hit for the selected pmt
-      hit->SetTime(aStep->GetPostStepPoint()->GetGlobalTime());
+      hit->SetTime(theStep->GetPostStepPoint()->GetGlobalTime());
       hit->SetLength(theTrack->GetTrackLength());
       hit->SetBounceCount(theTrack->GetCurrentStepNumber());
       fPMTHitsCollection->insert(hit);
@@ -80,7 +80,7 @@ DR_PMTSD::ProcessHits_constStep( const G4Step* aStep, G4TouchableHistory* )
       DR_PMTHit* hit = new DR_PMTHit(1);
       hit->AddEnergy(theTrack->GetTotalEnergy());
       hit->IncPhotonCount(); // increment hit for the selected pmt
-      hit->SetTime(aStep->GetPostStepPoint()->GetGlobalTime());
+      hit->SetTime(theStep->GetPostStepPoint()->GetGlobalTime());
       hit->SetLength(theTrack->GetTrackLength());
       hit->SetBounceCount(theTrack->GetCurrentStepNumber());
       fPMTHitsCollection->insert(hit);
@@ -90,7 +90,7 @@ DR_PMTSD::ProcessHits_constStep( const G4Step* aStep, G4TouchableHistory* )
       DR_PMTHit* hit = new DR_PMTHit(2);
       hit->AddEnergy(theTrack->GetTotalEnergy());
       hit->IncPhotonCount(); // increment hit for the selected pmt
-      hit->SetTime(aStep->GetPostStepPoint()->GetGlobalTime());
+      hit->SetTime(theStep->GetPostStepPoint()->GetGlobalTime());
       hit->SetLength(theTrack->GetTrackLength());
       hit->SetBounceCount(theTrack->GetCurrentStepNumber());
       fPMTHitsCollection->insert(hit);
@@ -100,7 +100,7 @@ DR_PMTSD::ProcessHits_constStep( const G4Step* aStep, G4TouchableHistory* )
       DR_PMTHit* hit = new DR_PMTHit(3);
       hit->AddEnergy(theTrack->GetTotalEnergy());
       hit->IncPhotonCount(); // increment hit for the selected pmt
-      hit->SetTime(aStep->GetPostStepPoint()->GetGlobalTime());
+      hit->SetTime(theStep->GetPostStepPoint()->GetGlobalTime());
       hit->SetLength(theTrack->GetTrackLength());
       hit->SetBounceCount(theTrack->GetCurrentStepNumber());
       fPMTHitsCollection->insert(hit);

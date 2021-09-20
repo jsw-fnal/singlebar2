@@ -130,9 +130,7 @@ private:
   G4double core_radius_y;
   G4int core_material;
   G4double core_rIndex;
-  G4double core_absLength;
-
- 
+  G4double core_absLength; 
 
   G4int gap_material;
   G4double wrapper_gap;
@@ -142,10 +140,7 @@ private:
   G4double gap_size_y;
 
   G4int det_material;
-  G4double det_l;
-  G4double det_window_size;
-  //  G4double det_size_x;
-  //  G4double det_size_y;
+
 
   G4double depth;
   G4double cryst_dist;
@@ -174,8 +169,7 @@ private:
   G4double fiber_diameter;
   G4double wrapping_thick;
   G4double ecal_timing_distance;
-  G4double ecal_det_size;
-
+  G4int narray;
 
   G4double sipm_size_x;   
   G4double sipm_size_y;
