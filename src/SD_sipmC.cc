@@ -31,7 +31,7 @@ G4bool
 SD_sipmC::ProcessHits( G4Step*       theStep,
                                    G4TouchableHistory*  )
 {
-  G4cout << "SD_sipmC::ProcessHits" << G4endl;
+  //G4cout << "SD_sipmC::ProcessHits" << G4endl;
     return true;
 }
 G4bool

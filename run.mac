@@ -5,9 +5,9 @@
 
 # cosmics
 /gps/energy 10 GeV
-#/gps/particle mu-
+/gps/particle mu-
 #/gps/particle gamma
-/gps/particle pi-
+#/gps/particle pi-
 #/gps/particle e-
 
 
@@ -17,8 +17,8 @@
 /gps/pos/halfx 0.5 mm
 /gps/pos/halfy 0.5 mm
 /gps/pos/centre 0 0cm -10 mm
-#/gps/direction 0 0 1
-/gps/direction 0 8 1
+/gps/direction 0 0 1
+
 
 
 #beam divergence
@@ -47,5 +47,4 @@
 #/gps/particle gamma
 #/gps/ang/type iso
 
-
-/run/beamOn 5
+/run/beamOn 100

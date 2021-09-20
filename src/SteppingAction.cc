@@ -78,7 +78,8 @@ void SteppingAction::UserSteppingAction(const G4Step *theStep)
 {
   // this code does very little now 
   // it is being replaced with sensitive detector code
-
+  // clean me up!  is it useful to have this to cut on photon lambda?
+  // or not? then delete all code here
   G4Track *theTrack = theStep->GetTrack();
 
   G4ParticleDefinition *particleType = theTrack->GetDefinition();

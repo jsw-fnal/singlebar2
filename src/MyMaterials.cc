@@ -118,7 +118,7 @@ G4Material *MyMaterials::Water()
   return mat;
 }
 
-G4Material *MyMaterials::Vacuum()
+G4Material *MyMaterials::Vacuum()  // ???
 {
   G4double a, z, density;
   G4int nelements;

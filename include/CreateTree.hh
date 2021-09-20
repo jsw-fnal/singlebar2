@@ -63,8 +63,12 @@ public:
   float depositedEnergyEscapeWorld;
 
   float depositedEnergyTotal;
-  float depositedEnergyECAL_f[3];
-  float depositedEnergyECAL_r[3];
+                                   // using only [0] for now to store all f/r energy
+  //float depositedEnergyECAL_f[64];  // upgrade to store up to 8x8 module info
+  //float depositedEnergyECAL_r[64];  // to do: implement element testing to do this
+  float depositedEnergyECAL_f;
+  float depositedEnergyECAL_r;
+
   float depositedEnergyHCALAct;
   float depositedEnergyHCALPas;
   float depositedEnergyServices;
@@ -76,8 +80,10 @@ public:
   float depositedEnergyEcalFront;
 
   float depositedIonEnergyTotal;
-  float depositedIonEnergyECAL_f[3];
-  float depositedIonEnergyECAL_r[3];
+  //float depositedIonEnergyECAL_f[3];  // also modify to support 8x8
+  //float depositedIonEnergyECAL_r[3];
+  float depositedIonEnergyECAL_f;
+  float depositedIonEnergyECAL_r;
   float depositedIonEnergyHCALAct;
   float depositedIonEnergyHCALPas;
   float depositedIonEnergyServices;

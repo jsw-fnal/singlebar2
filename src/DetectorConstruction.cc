@@ -95,6 +95,7 @@ Misc to do items
 - add independent adjustable diatance from xtal face to sipm(s), now it is the gap length
 - add option to place material (eg optical grease) between sipm and xtal
 - center module assembly at z=0 in caloLV
+- straighten out all materials for sipm components
 **********************************************************/
 
 DetectorConstruction::DetectorConstruction(const string &configFileName)
@@ -625,7 +626,7 @@ void DetectorConstruction::initializeMaterials()
   }
 
   /************************************************************************************/
-  WindowMaterial = MyMaterials::silicone();
+  WindowMaterial = MyMaterials::silicone();  // to do: allow setting
   PMTGapMaterial = MyMaterials::silicone();
   GaMaterial = NULL;
   if (gap_material == 1)
@@ -645,7 +646,7 @@ void DetectorConstruction::initializeMaterials()
     G4cerr << "<DetectorConstructioninitializeMaterials>: Invalid gap material specifier " << gap_material << G4endl;
     exit(-1);
   }
-  G4cout << "Gap material: " << gap_material << G4endl;
+  G4cout << "Gap material: " << gap_material << G4endl;   // to do: match to caloV for now
 
   DeMaterial = NULL;
   if (det_material == 1)

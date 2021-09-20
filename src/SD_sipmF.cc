@@ -50,7 +50,7 @@ SD_sipmF::ProcessHits( G4Step*       theStep,
  
     
   // OOPS!  don't kill track if particle interacts on the way into the front xtal!!!
-  G4cout  << "SD_simpF::ProcessHits  "/* << thePrePVName << " : " << thePostPVName*/ << endl;
+  //G4cout  << "SD_simpF::ProcessHits  "/* << thePrePVName << " : " << thePostPVName*/ << endl;
 
   theTrack->SetTrackStatus(fKillTrackAndSecondaries);
 

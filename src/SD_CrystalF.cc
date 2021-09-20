@@ -34,7 +34,7 @@ SD_CrystalF::ProcessHits( G4Step*       theStep,
 {   
   G4Track *theTrack = theStep->GetTrack();
   G4ParticleDefinition *particleType = theTrack->GetDefinition();
-  G4StepPoint *thePrePoint = theStep->GetPreStepPoint();
+  G4StepPoint *thePrePoint = theStep->GetPreStepPoint();  /// not needed!!!
   G4StepPoint *thePostPoint = theStep->GetPostStepPoint();
   const G4ThreeVector &thePrePosition = thePrePoint->GetPosition();
   G4VPhysicalVolume *thePrePV = thePrePoint->GetPhysicalVolume();
@@ -46,7 +46,7 @@ SD_CrystalF::ProcessHits( G4Step*       theStep,
   if (thePostPV)
     thePostPVName = thePostPV->GetName();
 
-  G4cout  << "SD_CrystalF::ProcessHits  " << thePrePVName << " : " << thePostPVName << endl;
+  //cout  << "SD_CrystalF::ProcessHits  " << thePrePVName << " : " << thePostPVName << endl;
 
   G4int nStep = theTrack->GetCurrentStepNumber();
   G4int TrPDGid = theTrack->GetDefinition()->GetPDGEncoding();
@@ -61,6 +61,11 @@ SD_CrystalF::ProcessHits( G4Step*       theStep,
   G4double energyElec = 0;
   if (abs(TrPDGid) == 11) energyElec = energyIon; 
 
+  CreateTree::Instance()->depositedEnergyECAL_f+=energy;
+  CreateTree::Instance()->depositedIonEnergyECAL_f+=energyIon;
+
+
+  // this block is probably not needed if it's already killed un user stepping action
  //------------- optical photon -------------
   if (particleType == G4OpticalPhoton::OpticalPhotonDefinition())
   {
@@ -78,7 +83,6 @@ SD_CrystalF::ProcessHits( G4Step*       theStep,
   return true;
 }
 G4bool
-
 SD_CrystalF::ProcessHits_constStep( const G4Step* theStep, G4TouchableHistory* )
 {
   G4cout << "SD_CrystalF::ProcessHits_constStep" << G4endl;

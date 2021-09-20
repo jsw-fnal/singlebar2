@@ -54,8 +54,10 @@ CreateTree::CreateTree(TString name)
 
   this->GetTree()->Branch("depositedEnergyTotal", &this->depositedEnergyTotal, "depositedEnergyTotal/F");
   this->GetTree()->Branch("depositedEnergyEscapeWorld", &this->depositedEnergyEscapeWorld, "depositedEnergyEscapeWorld/F");
-  this->GetTree()->Branch("depositedEnergyECAL_f", &this->depositedEnergyECAL_f, "depositedEnergyECAL_f[3]/F");
-  this->GetTree()->Branch("depositedEnergyECAL_r", &this->depositedEnergyECAL_r, "depositedEnergyECAL_r[3]/F");
+  //  this->GetTree()->Branch("depositedEnergyECAL_f", &this->depositedEnergyECAL_f, "depositedEnergyECAL_f[3]/F");
+  //  this->GetTree()->Branch("depositedEnergyECAL_r", &this->depositedEnergyECAL_r, "depositedEnergyECAL_r[3]/F");
+  this->GetTree()->Branch("depositedEnergyECAL_f", &this->depositedEnergyECAL_f, "depositedEnergyECAL_f/F");
+  this->GetTree()->Branch("depositedEnergyECAL_r", &this->depositedEnergyECAL_r, "depositedEnergyECAL_r/F");
   this->GetTree()->Branch("depositedEnergyHCALAct", &this->depositedEnergyHCALAct, "depositedEnergyHCALAct/F");
   this->GetTree()->Branch("depositedEnergyHCALPas", &this->depositedEnergyHCALPas, "depositedEnergyHCALPas/F");
   this->GetTree()->Branch("depositedEnergyWorld", &this->depositedEnergyWorld, "depositedEnergyWorld/F");
@@ -64,8 +66,12 @@ CreateTree::CreateTree(TString name)
   this->GetTree()->Branch("depositedEnergyEcalDet", &this->depositedEnergyEcalDet, "depositedEnergyEcalDet/F");
   this->GetTree()->Branch("depositedEnergySolenoid", &this->depositedEnergySolenoid, "depositedEnergySolenoid/F");
   this->GetTree()->Branch("depositedIonEnergyTotal", &this->depositedIonEnergyTotal, "depositedIonEnergyTotal/F");
+  /*
   this->GetTree()->Branch("depositedIonEnergyECAL_f", &this->depositedIonEnergyECAL_f, "depositedIonEnergyECAL_f[3]/F");
   this->GetTree()->Branch("depositedIonEnergyECAL_r", &this->depositedIonEnergyECAL_r, "depositedIonEnergyECAL_r[3]/F");
+  */
+  this->GetTree()->Branch("depositedIonEnergyECAL_f", &this->depositedIonEnergyECAL_f, "depositedIonEnergyECAL_f/F");
+  this->GetTree()->Branch("depositedIonEnergyECAL_r", &this->depositedIonEnergyECAL_r, "depositedIonEnergyECAL_r/F");
   this->GetTree()->Branch("depositedIonEnergyHCALAct", &this->depositedIonEnergyHCALAct, "depositedIonEnergyHCALAct/F");
   this->GetTree()->Branch("depositedIonEnergyHCALPas", &this->depositedIonEnergyHCALPas, "depositedIonEnergyHCALPas/F");
   this->GetTree()->Branch("depositedIonEnergyWorld", &this->depositedIonEnergyWorld, "depositedIonEnergyWorld/F");
@@ -174,10 +180,14 @@ void CreateTree::Clear()
   depositedEnergyEscapeWorld = 0.;
 
   depositedEnergyTotal = 0.;
+  /*
   for (int i = 0; i < 3; i++){
     depositedEnergyECAL_f[i] = 0.;
     depositedEnergyECAL_r[i] = 0.;
   }
+*/
+  depositedEnergyECAL_f = 0.;
+  depositedEnergyECAL_r = 0.;
   depositedEnergyHCALAct = 0.;
   depositedEnergyHCALPas = 0.;
   depositedEnergyWorld = 0.;
@@ -187,10 +197,14 @@ void CreateTree::Clear()
   depositedEnergySolenoid = 0.;
 
   depositedIonEnergyTotal = 0.;
+  depositedIonEnergyECAL_f=0;
+  depositedIonEnergyECAL_r=0;
+  /*
   for (int i = 0; i < 3; i++){
     depositedIonEnergyECAL_f[i] = 0.;
     depositedIonEnergyECAL_r[i] = 0.;
-  }
+    }
+*/
   depositedIonEnergyHCALAct = 0.;
   depositedIonEnergyHCALPas = 0.;
   depositedIonEnergyWorld = 0.;

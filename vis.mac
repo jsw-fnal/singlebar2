@@ -87,8 +87,8 @@
 
 /units/list
 
-/gps/energy 10 GeV
-/gps/particle pi-
+/gps/energy 100 MeV
+/gps/particle mu-
 #/gps/particle e-
 
 /gps/pos/type Plane
