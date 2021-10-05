@@ -102,11 +102,22 @@ CreateTree::CreateTree(TString name)
   this->GetTree()->Branch("ECAL_f_total_C", &this->ECAL_f_total_C, "ECAL_f_total_C/I");
   this->GetTree()->Branch("ECAL_r_total_S", &this->ECAL_r_total_S, "ECAL_r_total_S/I");
   this->GetTree()->Branch("ECAL_r_total_C", &this->ECAL_r_total_C, "ECAL_r_total_C/I");  
-  //detected in two detectors
-  this->GetTree()->Branch("SDdetected_ff_S", &this->SDdetected_ff_S, "SDdetected_ff_S/I");
-  this->GetTree()->Branch("SDdetected_ff_C", &this->SDdetected_ff_C, "SDdetected_ff_C/I");
-  this->GetTree()->Branch("SDdetected_rr_S", &this->SDdetected_rr_S, "SDdetected_rr_S/I");
-  this->GetTree()->Branch("SDdetected_rr_C", &this->SDdetected_rr_C, "SDdetected_rr_C/I");
+
+  //total exiting in front and rear part
+  this->GetTree()->Branch("ECAL_f_exit_S", &this->ECAL_f_exit_S, "ECAL_f_exit_S/I");
+  this->GetTree()->Branch("ECAL_f_exit_C", &this->ECAL_f_exit_C, "ECAL_f_exit_C/I");
+  this->GetTree()->Branch("ECAL_r_exit_S", &this->ECAL_r_exit_S, "ECAL_r_exit_S/I");
+  this->GetTree()->Branch("ECAL_r_exit_C", &this->ECAL_r_exit_C, "ECAL_r_exit_C/I");  
+
+
+
+  //detected in three detectors
+  this->GetTree()->Branch("SDFdetected_f_S", &this->SDFdetected_f_S, "SDFdetected_f_S/I");
+  this->GetTree()->Branch("SDFdetected_f_C", &this->SDFdetected_f_C, "SDFdetected_f_C/I");
+  this->GetTree()->Branch("SDCdetected_r_S", &this->SDCdetected_r_S, "SDCdetected_r_S/I");
+  this->GetTree()->Branch("SDCdetected_r_C", &this->SDCdetected_r_C, "SDCdetected_r_C/I");
+  this->GetTree()->Branch("SDSdetected_r_S", &this->SDSdetected_r_S, "SDSdetected_r_S/I");
+  this->GetTree()->Branch("SDSdetected_r_C", &this->SDSdetected_r_C, "SDSdetected_r_C/I");
 
   //detected photons 
   h_phot_lambda_ECAL_f_collect_Scin = new TH1F("h_phot_lambda_ECAL_f_collect_Scin", "", 1250, 0., 1250.);
@@ -230,11 +241,20 @@ void CreateTree::Clear()
   ECAL_r_total_S = 0.;
   ECAL_f_total_S = 0.;
   ECAL_r_total_C = 0.;
+  ECAL_f_exit_C = 0.;
+  ECAL_r_exit_S = 0.;
+  ECAL_f_exit_S = 0.;
+  ECAL_r_exit_C = 0.;
+
+  SDFdetected_f_S = 0.;
+  SDFdetected_f_C = 0.;
+  SDCdetected_r_S = 0.;
+  SDCdetected_r_C = 0.; 
+  SDSdetected_r_S = 0.;
+  SDSdetected_r_C = 0.;
+
+
   tot_phot_cer_HCAL = 0.;
-  SDdetected_ff_S = 0.;
-  SDdetected_ff_C = 0.;
-  SDdetected_rr_S = 0.;
-  SDdetected_rr_C = 0.; 
 
   for (int iLayer = 0; iLayer < 6; iLayer++)
   {

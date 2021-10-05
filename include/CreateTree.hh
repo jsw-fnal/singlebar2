@@ -12,6 +12,9 @@
 #include "TTree.h"
 #include "TNtuple.h"
 
+
+// to do: clean up unused values!!
+
 class CreateTree
 {
 private:
@@ -120,11 +123,19 @@ public:
   float depositedIonEnergyECAL_cheren_f_particleID[8];
   float depositedIonEnergyECAL_cheren_r_particleID[8];
 
+  // count produced photons
+  int ECAL_f_total_S;  // used
+  int ECAL_r_total_S;  // used 
+  int ECAL_f_total_C;  // used
+  int ECAL_r_total_C;  // used 
 
-  int ECAL_f_total_S;
-  int ECAL_r_total_S;
-  int ECAL_f_total_C;
-  int ECAL_r_total_C;
+  // count exiting photons from front or rear face into the medium between the xtal and SiPM surface
+  int ECAL_f_exit_S;  // used
+  int ECAL_r_exit_S;  // used 
+  int ECAL_f_exit_C;  // used
+  int ECAL_r_exit_C;  // used 
+
+
   int tot_phot_cer_ECAL_scinti_f_particleID[8];
   int tot_phot_cer_ECAL_scinti_r_particleID[8];
   int tot_phot_cer_ECAL_cheren_f_total;
@@ -133,10 +144,16 @@ public:
   int tot_phot_cer_ECAL_cheren_r_particleID[8];
   int tot_phot_cer_HCAL;
 
-  int SDdetected_ff_S;
-  int SDdetected_ff_C;
-  int SDdetected_rr_S;
-  int SDdetected_rr_C;
+  // counts of photons detected in (F)ront SiPM, rear (C)herenkov SiPM, rear (S)cint SiPM
+  int SDFdetected_f_S;   // used
+  int SDFdetected_f_C;   // used
+
+  int SDCdetected_r_S;   // used
+  int SDCdetected_r_C;   // used
+
+  int SDSdetected_r_S;   // used
+  int SDSdetected_r_C;   // used
+
   /***************** begin to seperate energy into different channels    ******************/
   float Edep_Tracker_layer[6];
 

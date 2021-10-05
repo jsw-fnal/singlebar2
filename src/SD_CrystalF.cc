@@ -64,24 +64,40 @@ SD_CrystalF::ProcessHits( G4Step*       theStep,
   CreateTree::Instance()->depositedEnergyECAL_f+=energy;
   CreateTree::Instance()->depositedIonEnergyECAL_f+=energyIon;
 
-
-  // this block is probably not needed if it's already killed un user stepping action
- //------------- optical photon -------------
-  if (particleType == G4OpticalPhoton::OpticalPhotonDefinition())
-  {
+  //------------- optical photon -------------
+  if (particleType == G4OpticalPhoton::OpticalPhotonDefinition()) {
     //if optics
     G4String processName = theTrack->GetCreatorProcess()->GetProcessName();
     float photWL = MyMaterials::fromEvToNm(theTrack->GetTotalEnergy() / eV);
-
-    //only consider 300 to 1000nm
+    
+    //only consider 300 to 1000nm:  probably not needed if it's already killed in userstepping action
     if (photWL > 1000 || photWL < 300) {
       theTrack->SetTrackStatus(fKillTrackAndSecondaries);
       return true;
     }
     
+    bool isCher = (processName == "Cerenkov");
+    bool isScin = (processName == "Scintillation");
+
+    // photon production info
+    if (nStep == 1) {
+      if (isScin) CreateTree::Instance()->ECAL_f_total_S += 1;
+      else if (isCher) CreateTree::Instance()->ECAL_f_total_C += 1;
+    }
+
+    // is photon leaving front face of xtal?
+    if (thePostPVName.contains("matchBox") || thePostPVName.contains("baffle")){ 
+      if (isScin) CreateTree::Instance()->ECAL_f_exit_S += 1;
+      else if (isCher) CreateTree::Instance()->ECAL_f_exit_C += 1;
+      // kill track at baffle for now
+      if (thePostPVName.contains("baffle")) theTrack->SetTrackStatus(fKillTrackAndSecondaries);
+    }
+
   }
   return true;
 }
+
+
 G4bool
 SD_CrystalF::ProcessHits_constStep( const G4Step* theStep, G4TouchableHistory* )
 {

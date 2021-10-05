@@ -114,8 +114,6 @@ void EventAction::EndOfEventAction(const G4Event *evt)
   //CreateTree::Instance()->tot_phot_cer_SDdetected_rf = EventPhotonCount_rf;
   //CreateTree::Instance()->tot_phot_cer_SDdetected_rr = EventPhotonCount_rr;
   CreateTree::Instance()->Fill();
-  cout << CreateTree::Instance()->depositedEnergyECAL_f << " " << 
-    CreateTree::Instance()->depositedIonEnergyECAL_r << endl;
 }
 
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----

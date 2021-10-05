@@ -96,6 +96,7 @@ Misc to do items
 - add option to place material (eg optical grease) between sipm and xtal
 - center module assembly at z=0 in caloLV
 - straighten out all materials for sipm components
+- put a SD in the gap infrom of SIPM to count optical photons making it out of the xtal
 **********************************************************/
 
 DetectorConstruction::DetectorConstruction(const string &configFileName)
@@ -135,11 +136,11 @@ DetectorConstruction::DetectorConstruction(const string &configFileName)
   config.readInto(wrap_material, "wrap_material");
   config.readInto(wrap_ref, "wrap_ref");
   config.readInto(wrapper_gap,"wrapper_gap");
-  config.readInto(wrap_l,"wrap_l");
+  config.readInto(wrap_thick,"wrap_thick");
 
   config.readInto(det_material, "det_material");
+  config.readInto(sipm_gap, "sipm_gap");
 
-  config.readInto(gap_l, "gap_l");
   config.readInto(gap_material, "gap_material");
  
   config.readInto(narray, "narray");
@@ -188,30 +189,37 @@ G4VPhysicalVolume *DetectorConstruction::Construct()
   G4VPhysicalVolume *worldPV = new G4PVPlacement(0, G4ThreeVector(), worldLV, "worldPV", 0, false, 0, checkOverlaps);
 
 
-  //********************************************
-  //  Crystal bar
-  //********************************************
-
-
-  double pointingAngle = ecal_incline;
-  double alveola_thickness = ecal_xy_gap * mm;
-
   // mother volume for detector, so only one rotation is needed for the entire assembly
+  double pointingAngle = ecal_incline;
   G4RotationMatrix *piRotCal = new G4RotationMatrix;
   piRotCal->rotateX(pointingAngle * deg);
 
+#define USE_CALOPV
+#ifdef USE_CALOPV
+  // why does defining a calo volume mess up the ray tracing?  [too much internal reflection!]  
   G4VSolid* caloS = new G4Box("caloS",expHall_x/3, expHall_y/3, expHall_z/3);
   G4LogicalVolume *caloLV = new G4LogicalVolume(caloS,WoMaterial,"caloLV");
   G4VPhysicalVolume *caloPV = 
     new G4PVPlacement(piRotCal,	G4ThreeVector(0.0,0.0,expHall_z/10.),caloLV,
 		      "caloPV",worldLV,false,0,checkOverlaps);
+#else
+  // 
+  G4LogicalVolume *caloLV = worldLV;
+  G4VPhysicalVolume *caloPV = worldPV;
+#endif  
 
-  // make a set of coordinate axes
-  // to do: Why is G4polyline not working??
-  //        scale this based on world volume
+  double alveola_thickness = ecal_xy_gap * mm;
+
+
+
+
+  //********************************************
+  //  Crystal bars
+  //********************************************
+
+  // make a set of transforms to use for positioning components
   G4RotationMatrix Ra; 
   G4ThreeVector Ta; 
-
 
 
   // front and rear crystals
@@ -223,9 +231,9 @@ G4VPhysicalVolume *DetectorConstruction::Construct()
 
   //wrapper front 5 sided
   G4Box *ecalWrapper_outerS_f = new G4Box("ecalWrapper_outerS_f", 
-					  0.5 * ecal_front_face + wrapper_gap + wrap_l, 
-					  0.5 * ecal_front_face + wrapper_gap + wrap_l, 
-					  0.5 * ecal_front_length + wrapper_gap + wrap_l);
+					  0.5 * ecal_front_face + wrapper_gap + wrap_thick, 
+					  0.5 * ecal_front_face + wrapper_gap + wrap_thick, 
+					  0.5 * ecal_front_length + wrapper_gap + wrap_thick);
 
   G4Box *ecalWrapper_innerS_f = new G4Box("ecalWrapper_innerS_f", 
 					  0.5 * ecal_front_face + wrapper_gap, 
@@ -236,7 +244,7 @@ G4VPhysicalVolume *DetectorConstruction::Construct()
 
   // shift outer wrapper block to cut off front face of wapper to xtal surface
   G4IntersectionSolid *ecalWrapperS_f = new G4IntersectionSolid("ecalWrapperS_f",ecalWrapper_shellS_f,ecalWrapper_outerS_f,
-								NULL,G4ThreeVector(0,0,wrapper_gap + wrap_l));
+								NULL,G4ThreeVector(0,0,wrapper_gap + wrap_thick));
   
   G4LogicalVolume *ecalWrapperL_f = new G4LogicalVolume(ecalWrapperS_f, WrapMaterial, "ecalWrapperL_f");
   
@@ -244,9 +252,9 @@ G4VPhysicalVolume *DetectorConstruction::Construct()
 
   // wrapper rear
   G4Box *ecalWrapper_outerS_r = new G4Box("ecalWrapper_outerS_r", 
-					  0.5 * ecal_rear_face + wrapper_gap + wrap_l, 
-					  0.5 * ecal_rear_face + wrapper_gap + wrap_l, 
-					  0.5 * ecal_rear_length + wrapper_gap + wrap_l);
+					  0.5 * ecal_rear_face + wrapper_gap + wrap_thick, 
+					  0.5 * ecal_rear_face + wrapper_gap + wrap_thick, 
+					  0.5 * ecal_rear_length + wrapper_gap + wrap_thick);
   G4Box *ecalWrapper_innerS_r = new G4Box("ecalWrapper_innerS_r", 
 					  0.5 * ecal_rear_face + wrapper_gap, 
 					  0.5 * ecal_rear_face + wrapper_gap, 
@@ -256,7 +264,7 @@ G4VPhysicalVolume *DetectorConstruction::Construct()
 
   // shift outer wrapper block to cut off front face of wapper to xtal surface
   G4IntersectionSolid *ecalWrapperS_r = new G4IntersectionSolid("ecalWrapperS_r",ecalWrapper_shellS_r,ecalWrapper_outerS_r,
-								NULL,G4ThreeVector(0,0,-wrapper_gap -wrap_l));
+								NULL,G4ThreeVector(0,0,-wrapper_gap -wrap_thick));
   
   G4LogicalVolume *ecalWrapperL_r = new G4LogicalVolume(ecalWrapperS_r, WrapMaterial, "ecalWrapperL_r"); 
   
@@ -278,27 +286,32 @@ G4VPhysicalVolume *DetectorConstruction::Construct()
 
   // baffle front
   G4double baffle_z = wrapper_gap + sipm_size_z;
-  G4Box *baffleS_f = new G4Box("baffleS_f", 0.5 * ecal_front_face + wrapper_gap + wrap_l, 
-					    0.5 * ecal_front_face + wrapper_gap + wrap_l, 
-			                    0.5 * (wrapper_gap + sipm_size_z));
+  G4Box *baffleS_f = new G4Box("baffleS_f", 0.5 * ecal_front_face + wrapper_gap + wrap_thick, 
+					    0.5 * ecal_front_face + wrapper_gap + wrap_thick, 
+			                    0.5 * (sipm_gap + sipm_size_z));
   G4Box *sipmCutoutS = new G4Box("sipmCutoutS", 0.5 * sipm_size_x, 0.5 * sipm_size_y, baffle_z); 
   G4VSolid *baffle_cutoutS_f = new G4SubtractionSolid("baffle_cutoutS_f",baffleS_f,sipmCutoutS,NULL,G4ThreeVector(0,0,0.5*wrapper_gap));
   G4LogicalVolume *baffleL_f = new G4LogicalVolume(baffle_cutoutS_f, WrapMaterial, "baffleL_f"); // todo define separate material for baffle  
+  G4Box *matchBoxS =  new G4Box("matchBoxS",0.5 * sipm_size_x, 0.5 * sipm_size_y, 0.5*sipm_gap);
+  G4LogicalVolume *matchBoxL = new G4LogicalVolume(matchBoxS, GaMaterial, "matchBoxL");          // matching material between SiPM and Xtal
 
   // SiPM assembly for front, including baffle
   Ta.set(0,0,0);
   G4AssemblyVolume* sipmAssembly_f = new G4AssemblyVolume();
   sipmAssembly_f->AddPlacedVolume(baffleL_f, Ta, &Ra );        // origin of assembly is at center of the baffle
-  Ta.setZ( 0.5*baffle_z - 0.5*sipm_window_l - wrapper_gap);    // to do: allow separate gap spacing distance for SiPM 
+  Ta.setZ( 0.5*baffle_z - 0.5*sipm_gap); 
+  // build SiPM by layers              
+  sipmAssembly_f->AddPlacedVolume(matchBoxL, Ta, &Ra );       // place the matching/sipm_gap material volume 
+  Ta.setZ( 0.5*baffle_z - 0.5*sipm_window_l - sipm_gap);       
   sipmAssembly_f->AddPlacedVolume( sipmFWindowL, Ta, &Ra );    // window set back by small gap from xtal/baffle surface
   sipmAssembly_f->AddPlacedVolume( sipmBorderL, Ta, &Ra );   
   Ta.setZ( -0.5*baffle_z + 0.5*base_l );                       // measured from back face of baffle
   sipmAssembly_f->AddPlacedVolume( sipmBaseL, Ta, &Ra );
 
   // baffle rear 
-  G4Box *baffleS_r = new G4Box("baffleS_r", 0.5 * ecal_rear_face + wrapper_gap + wrap_l, 
-					    0.5 * ecal_rear_face + wrapper_gap + wrap_l, 
-			                    0.5 * (wrapper_gap + sipm_size_z));
+  G4Box *baffleS_r = new G4Box("baffleS_r", 0.5 * ecal_rear_face + wrapper_gap + wrap_thick, 
+					    0.5 * ecal_rear_face + wrapper_gap + wrap_thick, 
+			                    0.5 * (sipm_gap + sipm_size_z));
   Ta.set(0, ecal_rear_face/4.0, 0.5*wrapper_gap);
   G4VSolid *baffle_cutout1S_r = new G4SubtractionSolid("baffle_cutout1S_r",baffleS_r,sipmCutoutS,NULL,Ta);
   Ta.set(0, -ecal_rear_face/4.0, 0.5*wrapper_gap);
@@ -309,14 +322,20 @@ G4VPhysicalVolume *DetectorConstruction::Construct()
   Ta.set(0,0,0);
   G4AssemblyVolume* sipmAssembly_r = new G4AssemblyVolume();
   sipmAssembly_r->AddPlacedVolume(baffleL_r, Ta, &Ra );       // origin of assembly is at center of the baffle
+
   // SiPM back S-type
-  Ta.set(0, ecal_rear_face/4.0, 0.5*baffle_z - 0.5*sipm_window_l - wrapper_gap); 
+  Ta.set(0, ecal_rear_face/4.0, 0.5*baffle_z - 0.5*sipm_gap);
+  sipmAssembly_r->AddPlacedVolume(matchBoxL, Ta, &Ra ); 
+  Ta.set(0, ecal_rear_face/4.0, 0.5*baffle_z - 0.5*sipm_window_l - sipm_gap); 
   sipmAssembly_r->AddPlacedVolume( sipmSWindowL, Ta, &Ra );
   sipmAssembly_r->AddPlacedVolume( sipmBorderL, Ta, &Ra );
   Ta.set(0, ecal_rear_face/4.0, -0.5*baffle_z + 0.5*base_l );                      // measured from back face of baffle
   sipmAssembly_r->AddPlacedVolume( sipmBaseL, Ta, &Ra );
+
   // SiPM back C-type
-  Ta.set(0, -ecal_rear_face/4.0, 0.5*baffle_z - 0.5*sipm_window_l - wrapper_gap); 
+  Ta.set(0, -ecal_rear_face/4.0, 0.5*baffle_z - 0.5*sipm_gap); 
+  sipmAssembly_r->AddPlacedVolume(matchBoxL, Ta, &Ra ); 
+  Ta.set(0, -ecal_rear_face/4.0, 0.5*baffle_z - 0.5*sipm_window_l - sipm_gap); 
   sipmAssembly_r->AddPlacedVolume( sipmCWindowL, Ta, &Ra );
   sipmAssembly_r->AddPlacedVolume( sipmBorderL, Ta, &Ra );
   Ta.set(0, -ecal_rear_face/4.0, -0.5*baffle_z + 0.5*base_l );                      // measured from back face of baffle
@@ -333,7 +352,7 @@ G4VPhysicalVolume *DetectorConstruction::Construct()
   xtalAssembly->AddPlacedVolume( ecalCrystalL_f, Ta, &Ra );  // origin is at center of front xtal face
   xtalAssembly->AddPlacedVolume( ecalWrapperL_f, Ta, &Ra );
   
-  Ta.setZ(ecal_front_length + wrapper_gap*2 + wrap_l*2 + ecal_z_gap + 0.5 * ecal_rear_length);   // rear xtal, placement relative face of front xtal
+  Ta.setZ(ecal_front_length + wrapper_gap*2 + wrap_thick*2 + ecal_z_gap + 0.5 * ecal_rear_length);   // rear xtal, placement relative face of front xtal
   xtalAssembly->AddPlacedVolume( ecalCrystalL_r, Ta, &Ra );
   xtalAssembly->AddPlacedVolume( ecalWrapperL_r, Ta, &Ra ); 
 
@@ -343,7 +362,7 @@ G4VPhysicalVolume *DetectorConstruction::Construct()
 
   // add rear sipm assembly
   Ra.rotateX(180.*deg);
-  Ta.set(0,0,ecal_front_length + wrapper_gap*2 + wrap_l*2 + ecal_z_gap + ecal_rear_length + 0.5*baffle_z);
+  Ta.set(0,0,ecal_front_length + wrapper_gap*2 + wrap_thick*2 + ecal_z_gap + ecal_rear_length + 0.5*baffle_z);
   xtalAssembly->AddPlacedAssembly(sipmAssembly_r, Ta, &Ra);
   
   // set surface properties
@@ -367,7 +386,7 @@ G4VPhysicalVolume *DetectorConstruction::Construct()
 
   if (narray>1) {
     G4double x = 0 , y = 0;
-    G4double dx = ecal_front_face  +  wrapper_gap*2 + wrap_l*2;
+    G4double dx = ecal_front_face + wrapper_gap*2 + wrap_thick*2 + alveola_thickness;
     G4double dy = dx;
     int ncol = (int) sqrt(narray);
     for (int i=1; i<narray; i++){
@@ -429,6 +448,8 @@ G4VPhysicalVolume *DetectorConstruction::Construct()
   G4Colour lightblue(0.69, 0.89, 1.0);
   G4Colour cyan(0.00, 1.00, 1.00);    // cyan
   G4Colour cyanA1(0.00, 1.00, 1.00, 0.1);    
+  G4Colour yellowA1(1.00, 1.00, 0.00, 0.1);    
+
 
   G4Colour air(0.90, 0.90, 1.00);    
   G4Colour magenta(1.00, 0.00, 1.00);  // magenta
@@ -442,11 +463,16 @@ G4VPhysicalVolume *DetectorConstruction::Construct()
   worldLV->SetVisAttributes(VisAttWorld);
 
 
-  G4VisAttributes *VisAttCalo = new G4VisAttributes(blue);
+  G4VisAttributes *VisAttCalo = new G4VisAttributes(yellowA1);
   VisAttCalo->SetVisibility(true);
-  VisAttCalo->SetForceWireframe(true);
+  VisAttCalo->SetForceWireframe(false);
   caloLV->SetVisAttributes(VisAttCalo);
     
+
+  G4VisAttributes *VisAttMatch = new G4VisAttributes(yellow);
+  VisAttMatch->SetVisibility(true);
+  VisAttMatch->SetForceWireframe(false);
+  matchBoxL->SetVisAttributes(VisAttMatch);
 
   G4VisAttributes *VisAttCore = new G4VisAttributes(green);
   VisAttCore->SetVisibility(false);
@@ -484,7 +510,7 @@ G4VPhysicalVolume *DetectorConstruction::Construct()
 
   G4VisAttributes *Viswrapr = new G4VisAttributes(cyanA1);
   Viswrapr->SetVisibility(true);
-  Viswrapr->SetForceWireframe(false);
+  Viswrapr->SetForceWireframe(true);
   ecalWrapperL_r->SetVisAttributes(Viswrapr);
 
   G4VisAttributes *VisSipmSWindow = new G4VisAttributes(green);
@@ -626,8 +652,10 @@ void DetectorConstruction::initializeMaterials()
   }
 
   /************************************************************************************/
-  WindowMaterial = MyMaterials::silicone();  // to do: allow setting
+  WindowMaterial = MyMaterials::SiO2();     // to do: allow setting
   PMTGapMaterial = MyMaterials::silicone();
+  DeMaterial = MyMaterials::Ceramic();
+
   GaMaterial = NULL;
   if (gap_material == 1)
     GaMaterial = MyMaterials::Air();
@@ -648,6 +676,7 @@ void DetectorConstruction::initializeMaterials()
   }
   G4cout << "Gap material: " << gap_material << G4endl;   // to do: match to caloV for now
 
+  /*
   DeMaterial = NULL;
   if (det_material == 1)
     DeMaterial = MyMaterials::Silicon();
@@ -662,6 +691,7 @@ void DetectorConstruction::initializeMaterials()
     G4cerr << "<DetectorConstructioninitializeMaterials>: Invalid detector material specifier " << det_material << G4endl;
     exit(-1);
   }
+  */
   G4cout << "Detector material: " << det_material << G4endl;
 
   //------------------

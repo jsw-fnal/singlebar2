@@ -47,6 +47,7 @@ public:
   static G4Material* BGO();
   static G4Material* SiO2_Ce();
   static G4Material* Epoxy();
+  static G4Material* Ceramic();
   static G4Material* silicone();
   static G4Material* LuAG_undoped();
   static G4Material* LuAG_Ce();

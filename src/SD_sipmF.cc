@@ -35,9 +35,11 @@ SD_sipmF::ProcessHits( G4Step*       theStep,
   G4Track *theTrack = theStep->GetTrack();
   G4ParticleDefinition *particleType = theTrack->GetDefinition();
 
+  // to do check ionization energy at some point in active layer 
   if (particleType != G4OpticalPhoton::OpticalPhotonDefinition()) return true;
-
-  // we do no distunguish between C and S photons in the front SiPM
+  G4String processName = theTrack->GetCreatorProcess()->GetProcessName();
+  if ((processName != "Cerenkov") && processName != "Scintillation") return true;
+ 
   float photWL = MyMaterials::fromEvToNm(theTrack->GetTotalEnergy() / eV);
   //only consider 300 to 1000nm
   if (photWL > 1000 || photWL < 300) {
@@ -46,21 +48,19 @@ SD_sipmF::ProcessHits( G4Step*       theStep,
   }
 
   // count some stuff
-
- 
-    
-  // OOPS!  don't kill track if particle interacts on the way into the front xtal!!!
+  if (processName == "Cerenkov") CreateTree::Instance()->SDFdetected_f_C++;
+  if (processName == "Scintillation") CreateTree::Instance()->SDFdetected_f_S++;
+  
   //G4cout  << "SD_simpF::ProcessHits  "/* << thePrePVName << " : " << thePostPVName*/ << endl;
 
   theTrack->SetTrackStatus(fKillTrackAndSecondaries);
 
   return true;
 }
+
 G4bool
 SD_sipmF::ProcessHits_constStep( const G4Step* theStep, G4TouchableHistory* )
 {
-
-
 
   return  false;
 }

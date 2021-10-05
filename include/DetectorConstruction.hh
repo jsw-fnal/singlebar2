@@ -134,8 +134,7 @@ private:
 
   G4int gap_material;
   G4double wrapper_gap;
-  G4double wrap_l;
-  G4double gap_l;
+  G4double wrap_thick;
   G4double gap_size_x;
   G4double gap_size_y;
 

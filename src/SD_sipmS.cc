@@ -16,6 +16,10 @@
 #include "G4UnitsTable.hh"
 #include "G4SystemOfUnits.hh"
 
+
+// Sensitive detector for Scintillation light SiPM
+
+
 SD_sipmS::SD_sipmS(G4String name)
     : G4VSensitiveDetector(name)
 {
@@ -33,7 +37,29 @@ SD_sipmS::ProcessHits( G4Step*       theStep,
                                    G4TouchableHistory*  )
 {
   //G4cout << "SD_sipmS::ProcessHits" << G4endl;
+  G4Track *theTrack = theStep->GetTrack();
+  G4ParticleDefinition *particleType = theTrack->GetDefinition();
+
+  // to do check ionization energy at some point in active layer 
+  if (particleType != G4OpticalPhoton::OpticalPhotonDefinition()) return true;
+  G4String processName = theTrack->GetCreatorProcess()->GetProcessName();
+  if ((processName != "Cerenkov") && processName != "Scintillation") return true;
+ 
+  float photWL = MyMaterials::fromEvToNm(theTrack->GetTotalEnergy() / eV);
+  //only consider 300 to 1000nm
+  if (photWL > 1000 || photWL < 300) {
+    theTrack->SetTrackStatus(fKillTrackAndSecondaries);
     return true;
+  }
+
+  // count some stuff
+  if (processName == "Cerenkov") CreateTree::Instance()->SDSdetected_r_C++;
+  if (processName == "Scintillation") CreateTree::Instance()->SDSdetected_r_S++;
+  
+  //G4cout  << "SD_simpF::ProcessHits  "/* << thePrePVName << " : " << thePostPVName*/ << endl;
+
+  theTrack->SetTrackStatus(fKillTrackAndSecondaries);
+  return true;
 }
 G4bool
 SD_sipmS::ProcessHits_constStep( const G4Step* theStep, G4TouchableHistory* )

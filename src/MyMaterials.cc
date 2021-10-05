@@ -1120,21 +1120,33 @@ G4Material *MyMaterials::Epoxy()
   G4Element *Al = new G4Element("Aluminum", "Al", z = 13., a = 28.09 * g / mole);
 
   G4Material *epoxy = new G4Material("Epoxy", 3.75 * g / cm3, 2, kStateSolid);
-  epoxy->AddElement(Al, 40 * perCent);
-  epoxy->AddElement(O, 60 * perCent);
+  return epoxy;
+}
+
+
+G4Material *MyMaterials::Ceramic()
+{
+
+  G4double a, z;
+  G4Element *O = new G4Element("Oxygen", "O", z = 8., a = 16.00 * g / mole);
+  G4Element *Al = new G4Element("Aluminum", "Al", z = 13., a = 28.09 * g / mole);
+
+  G4Material *ceramic = new G4Material("Ceramic", 3.75 * g / cm3, 2, kStateSolid);
+  ceramic->AddElement(Al, 40 * perCent);
+  ceramic->AddElement(O, 60 * perCent);
   const int flatentries = 2;
-  double photonE[flatentries] = {1 * eV, 6 * eV};
+  double photonE[flatentries] = {.01 * eV, 10 * eV};
   double refrac_idx[flatentries] = {1.50, 1.50};
   double Reflectivity[flatentries] = {0.5, 0.5};
-  double abs_length[flatentries] = {10 * m, 10 * m};
+  double abs_length[flatentries] = {0.01 * mm, 0.01 * mm};
 
   G4MaterialPropertiesTable *table = new G4MaterialPropertiesTable();
   table->AddProperty("RINDEX", photonE, refrac_idx, flatentries);
   table->AddProperty("REFLECTIVITY", photonE, Reflectivity, flatentries);
   table->AddProperty("ABSLENGTH", photonE, abs_length, flatentries);
 
-  epoxy->SetMaterialPropertiesTable(table);
-  return epoxy;
+  ceramic->SetMaterialPropertiesTable(table);
+  return ceramic;
 }
 
 G4Material *MyMaterials::LYSO()

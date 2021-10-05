@@ -66,8 +66,7 @@ SD_CrystalR::ProcessHits( G4Step*       theStep,
 
 
  //------------- optical photon -------------
-  if (particleType == G4OpticalPhoton::OpticalPhotonDefinition())
-  {
+  if (particleType == G4OpticalPhoton::OpticalPhotonDefinition()) {
     //if optics
     G4String processName = theTrack->GetCreatorProcess()->GetProcessName();
     float photWL = MyMaterials::fromEvToNm(theTrack->GetTotalEnergy() / eV);
@@ -77,7 +76,24 @@ SD_CrystalR::ProcessHits( G4Step*       theStep,
       theTrack->SetTrackStatus(fKillTrackAndSecondaries);
       return true;
     }
-    
+
+    bool isCher = (processName == "Cerenkov");
+    bool isScin = (processName == "Scintillation");
+
+    // photon production info
+    if (nStep == 1) {
+      if (isScin) CreateTree::Instance()->ECAL_r_total_S += 1;
+      else if (isCher) CreateTree::Instance()->ECAL_r_total_C += 1;
+    }
+
+    // is photon leaving rear face of xtal?
+    if (thePostPVName.contains("matchBox") || thePostPVName.contains("baffle")){ 
+      if (isScin) CreateTree::Instance()->ECAL_r_exit_S += 1;
+      else if (isCher) CreateTree::Instance()->ECAL_r_exit_C += 1;
+      // kill track at baffle for now
+      if (thePostPVName.contains("baffle")) theTrack->SetTrackStatus(fKillTrackAndSecondaries);
+    }
+
   }
   return true;
 }
