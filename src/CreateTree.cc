@@ -120,10 +120,12 @@ CreateTree::CreateTree(TString name)
   this->GetTree()->Branch("SDSdetected_r_C", &this->SDSdetected_r_C, "SDSdetected_r_C/I");
 
   //detected photons 
-  h_phot_lambda_ECAL_f_collect_Scin = new TH1F("h_phot_lambda_ECAL_f_collect_Scin", "", 1250, 0., 1250.);
-  h_phot_lambda_ECAL_r_collect_Scin = new TH1F("h_phot_lambda_ECAL_r_collect_Scin", "", 1250, 0., 1250.);
-  h_phot_lambda_ECAL_f_collect_Ceren = new TH1F("h_phot_lambda_ECAL_f_collect_Ceren", "", 1250, 0., 1250.);
-  h_phot_lambda_ECAL_r_collect_Ceren = new TH1F("h_phot_lambda_ECAL_r_collect_Ceren", "", 1250, 0., 1250.);
+  h_phot_lambda_SiPMF_f_Scin = new TH1F("h_phot_lambda_SiPMF_f_Scin", "", 1250, 0., 1250.);
+  h_phot_lambda_SiPMF_f_Ceren = new TH1F("h_phot_lambda_SiPMF_f_Ceren", "", 1250, 0., 1250.);
+  h_phot_lambda_SiPMC_r_Scin = new TH1F("h_phot_lambda_SiPMC_r_Scin", "", 1250, 0., 1250.);
+  h_phot_lambda_SiPMC_r_Ceren = new TH1F("h_phot_lambda_SiPMC_r_Ceren", "", 1250, 0., 1250.);
+  h_phot_lambda_SiPMS_r_Scin = new TH1F("h_phot_lambda_SiPMS_r_Scin", "", 1250, 0., 1250.);
+  h_phot_lambda_SiPMS_r_Ceren = new TH1F("h_phot_lambda_SiPMS_r_Ceren", "", 1250, 0., 1250.);
   //generated photons
   h_phot_lambda_ECAL_f_produce_Scin = new TH1F("h_phot_lambda_ECAL_f_produce_Scin", "", 1250, 0., 1250.);
   h_phot_lambda_ECAL_r_produce_Scin = new TH1F("h_phot_lambda_ECAL_r_produce_Scin", "", 1250, 0., 1250.);
@@ -155,17 +157,21 @@ bool CreateTree::Write(TFile *outfile)
 {
   outfile->cd();
   ftree->Write();
-  h_phot_lambda_ECAL_f_collect_Scin->Write();
-  h_phot_lambda_ECAL_r_collect_Scin->Write();
-  h_phot_lambda_ECAL_f_produce_Scin->Write();
-  h_phot_lambda_ECAL_r_produce_Scin->Write();
-  //h_photon_2D_produce_Scin->Write();
-  //h_photon_2D_receive_Scin->Write();
 
-  h_phot_lambda_ECAL_f_collect_Ceren->Write();
-  h_phot_lambda_ECAL_r_collect_Ceren->Write();
+
   h_phot_lambda_ECAL_f_produce_Ceren->Write();
+  h_phot_lambda_ECAL_f_produce_Scin->Write();
   h_phot_lambda_ECAL_r_produce_Ceren->Write();
+  h_phot_lambda_ECAL_r_produce_Scin->Write();
+  h_phot_lambda_SiPMF_f_Ceren->Write();
+  h_phot_lambda_SiPMF_f_Scin->Write();
+  h_phot_lambda_SiPMC_r_Ceren->Write();
+  h_phot_lambda_SiPMC_r_Scin->Write(); 
+  h_phot_lambda_SiPMS_r_Ceren->Write();
+  h_phot_lambda_SiPMS_r_Scin->Write(); 
+
+
+
   //h_photon_2D_produce_Ceren->Write();
   //h_photon_2D_receive_Ceren->Write();
 

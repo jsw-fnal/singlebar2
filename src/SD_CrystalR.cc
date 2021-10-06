@@ -82,8 +82,14 @@ SD_CrystalR::ProcessHits( G4Step*       theStep,
 
     // photon production info
     if (nStep == 1) {
-      if (isScin) CreateTree::Instance()->ECAL_r_total_S += 1;
-      else if (isCher) CreateTree::Instance()->ECAL_r_total_C += 1;
+      if (isScin) {
+	CreateTree::Instance()->ECAL_r_total_S += 1;
+	CreateTree::Instance()->h_phot_lambda_ECAL_r_produce_Scin->Fill(photWL);
+      }
+      else if (isCher) {
+	CreateTree::Instance()->ECAL_r_total_C += 1;
+	CreateTree::Instance()->h_phot_lambda_ECAL_r_produce_Ceren->Fill(photWL);
+      }
     }
 
     // is photon leaving rear face of xtal?

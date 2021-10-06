@@ -48,8 +48,14 @@ SD_sipmF::ProcessHits( G4Step*       theStep,
   }
 
   // count some stuff
-  if (processName == "Cerenkov") CreateTree::Instance()->SDFdetected_f_C++;
-  if (processName == "Scintillation") CreateTree::Instance()->SDFdetected_f_S++;
+  if (processName == "Cerenkov") {
+    CreateTree::Instance()->SDFdetected_f_C++;
+    CreateTree::Instance()->h_phot_lambda_SiPMF_f_Ceren->Fill(photWL);
+  }
+  if (processName == "Scintillation") {
+    CreateTree::Instance()->SDFdetected_f_S++;
+    CreateTree::Instance()->h_phot_lambda_SiPMF_f_Scin->Fill(photWL);
+  }
   
   //G4cout  << "SD_simpF::ProcessHits  "/* << thePrePVName << " : " << thePostPVName*/ << endl;
 

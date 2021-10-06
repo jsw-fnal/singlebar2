@@ -158,18 +158,26 @@ public:
   float Edep_Tracker_layer[6];
 
 
-  TH1F *h_phot_lambda_ECAL_f_collect_Ceren;
-  TH1F *h_phot_lambda_ECAL_r_collect_Ceren;
+  // lambda of photons produced
   TH1F *h_phot_lambda_ECAL_f_produce_Ceren;
+  TH1F *h_phot_lambda_ECAL_f_produce_Scin;
   TH1F *h_phot_lambda_ECAL_r_produce_Ceren;
+  TH1F *h_phot_lambda_ECAL_r_produce_Scin;
+
+  // photons collected in front sipm
+  TH1F *h_phot_lambda_SiPMF_f_Ceren;
+  TH1F *h_phot_lambda_SiPMF_f_Scin;
+
+  // photons collected in rear sipms
+  TH1F *h_phot_lambda_SiPMC_r_Ceren;
+  TH1F *h_phot_lambda_SiPMC_r_Scin; 
+  TH1F *h_phot_lambda_SiPMS_r_Ceren;
+  TH1F *h_phot_lambda_SiPMS_r_Scin; 
+
   //TH2F *h_photon_2D_produce_Ceren;
   //TH2F *h_photon_2D_receive_Ceren;
 
 
-  TH1F *h_phot_lambda_ECAL_f_collect_Scin;
-  TH1F *h_phot_lambda_ECAL_r_collect_Scin;
-  TH1F *h_phot_lambda_ECAL_f_produce_Scin;
-  TH1F *h_phot_lambda_ECAL_r_produce_Scin;
   //TH2F *h_photon_2D_produce_Scin;
   //TH2F *h_photon_2D_receive_Scin;
 

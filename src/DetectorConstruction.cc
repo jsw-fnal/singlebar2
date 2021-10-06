@@ -196,6 +196,7 @@ G4VPhysicalVolume *DetectorConstruction::Construct()
 
 #define USE_CALOPV
 #ifdef USE_CALOPV
+  cout << "Setting Xtal modules in CALO volume" << endl;
   // why does defining a calo volume mess up the ray tracing?  [too much internal reflection!]  
   G4VSolid* caloS = new G4Box("caloS",expHall_x/3, expHall_y/3, expHall_z/3);
   G4LogicalVolume *caloLV = new G4LogicalVolume(caloS,WoMaterial,"caloLV");
