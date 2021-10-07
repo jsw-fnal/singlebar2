@@ -157,7 +157,7 @@ DetectorConstruction::DetectorConstruction(const string &configFileName)
 
   initializeMaterials();
   initializeSurface();
-
+  /*
   CreateTree::Instance()->inputTrackerX0 = trackerX0;
   CreateTree::Instance()->inputServiceAlmm = services_thick;
   CreateTree::Instance()->inputTimingThick = core_radius_x * 2;
@@ -165,6 +165,7 @@ DetectorConstruction::DetectorConstruction(const string &configFileName)
   CreateTree::Instance()->inputE2Thick = ecal_rear_length;
   CreateTree::Instance()->inputE1Width = ecal_front_face;
   CreateTree::Instance()->inputTimingECAL_dist = ecal_timing_distance;
+  */
 }
 
 //---- ---- ---- ---- ---- ---- ---- ---- ----  ---- ---- ---- ---- ---- ----

@@ -51,10 +51,12 @@ SD_CrystalF::ProcessHits( G4Step*       theStep,
   G4int nStep = theTrack->GetCurrentStepNumber();
   G4int TrPDGid = theTrack->GetDefinition()->GetPDGEncoding();
 
-    // get position
+  // get position
+  /*
   G4double global_x = thePrePosition.x() / mm;
   G4double global_y = thePrePosition.y() / mm;
   G4double global_z = thePrePosition.z() / mm;
+  */
 
   G4double energy = theStep->GetTotalEnergyDeposit();
   G4double energyIon = energy - theStep->GetNonIonizingEnergyDeposit();

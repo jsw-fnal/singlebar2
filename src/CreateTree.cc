@@ -19,7 +19,7 @@ CreateTree::CreateTree(TString name)
   this->ftree = new TTree(name, name);
 
   this->GetTree()->Branch("Event", &this->Event, "Event/I");
-
+  /*
   this->GetTree()->Branch("inputTrackerX0", &this->inputTrackerX0, "inputTrackerX0/F");
   this->GetTree()->Branch("inputServiceAlmm", &this->inputServiceAlmm, "inputServiceAlmm/F");
   this->GetTree()->Branch("inputTimingThick", &this->inputTimingThick, "inputTimingThick/F");
@@ -27,26 +27,30 @@ CreateTree::CreateTree(TString name)
   this->GetTree()->Branch("inputE2Thick", &this->inputE2Thick, "inputE2Thick/F");
   this->GetTree()->Branch("inputE1Width", &this->inputE1Width, "inputE1Width/F");
   this->GetTree()->Branch("inputTimingECAL_dist", &this->inputTimingECAL_dist, "inputTimingECAL_dist/F");
-
+  */
   inputInitialPosition = new vector<float>(3, 0.);
   inputMomentum = new vector<float>(4, 0.);
+  /*
   primaryPosT1 = new vector<float>(3, 0.);
   primaryMomT1 = new vector<float>(4, 0.);
   primaryPosE1 = new vector<float>(3, 0.);
   primaryMomE1 = new vector<float>(4, 0.);
+  */
 
   this->GetTree()->Branch("inputInitialPosition", "vector<float>", &inputInitialPosition);
   this->GetTree()->Branch("inputMomentum", "vector<float>", &inputMomentum);
-  this->GetTree()->Branch("primaryPosT1", "vector<float>", &primaryPosT1);
-  this->GetTree()->Branch("primaryMomT1", "vector<float>", &primaryMomT1);
-  this->GetTree()->Branch("primaryPosE1", "vector<float>", &primaryPosE1);
-  this->GetTree()->Branch("primaryMomE1", "vector<float>", &primaryMomE1);
-
+  this->GetTree()->Branch("primaryID", &this->primaryID, "primaryID/I");
+  //  this->GetTree()->Branch("primaryPosT1", "vector<float>", &primaryPosT1);
+  //  this->GetTree()->Branch("primaryMomT1", "vector<float>", &primaryMomT1);
+  //  this->GetTree()->Branch("primaryPosE1", "vector<float>", &primaryPosE1);
+  //  this->GetTree()->Branch("primaryMomE1", "vector<float>", &primaryMomE1);
+  /*
   this->GetTree()->Branch("nTracksT1", &this->nTracksT1, "nTracksT1/I");
   this->GetTree()->Branch("nTracksT2", &this->nTracksT2, "nTracksT2/I");
   this->GetTree()->Branch("nTracksE1", &this->nTracksE1, "nTracksE1/I");
   this->GetTree()->Branch("nTracksE2", &this->nTracksE2, "nTracksE2/I");
   this->GetTree()->Branch("nTracksTRK", &this->nTracksTRK, "nTracksTRK[6]/F");
+  */
 
   //integrated per longitudinal layer
   this->GetTree()->Branch("depositedEnergyEcalFront",&this->depositedEnergyEcalFront,"depositedEnergyEcalFront/F");
@@ -58,13 +62,13 @@ CreateTree::CreateTree(TString name)
   //  this->GetTree()->Branch("depositedEnergyECAL_r", &this->depositedEnergyECAL_r, "depositedEnergyECAL_r[3]/F");
   this->GetTree()->Branch("depositedEnergyECAL_f", &this->depositedEnergyECAL_f, "depositedEnergyECAL_f/F");
   this->GetTree()->Branch("depositedEnergyECAL_r", &this->depositedEnergyECAL_r, "depositedEnergyECAL_r/F");
-  this->GetTree()->Branch("depositedEnergyHCALAct", &this->depositedEnergyHCALAct, "depositedEnergyHCALAct/F");
-  this->GetTree()->Branch("depositedEnergyHCALPas", &this->depositedEnergyHCALPas, "depositedEnergyHCALPas/F");
+  //  this->GetTree()->Branch("depositedEnergyHCALAct", &this->depositedEnergyHCALAct, "depositedEnergyHCALAct/F");
+  //  this->GetTree()->Branch("depositedEnergyHCALPas", &this->depositedEnergyHCALPas, "depositedEnergyHCALPas/F");
   this->GetTree()->Branch("depositedEnergyWorld", &this->depositedEnergyWorld, "depositedEnergyWorld/F");
-  this->GetTree()->Branch("depositedEnergyServices", &this->depositedEnergyServices, "depositedEnergyServices/F");
+  //  this->GetTree()->Branch("depositedEnergyServices", &this->depositedEnergyServices, "depositedEnergyServices/F");
   this->GetTree()->Branch("depositedEnergyEcalGap", &this->depositedEnergyEcalGap, "depositedEnergyEcalGap/F");
   this->GetTree()->Branch("depositedEnergyEcalDet", &this->depositedEnergyEcalDet, "depositedEnergyEcalDet/F");
-  this->GetTree()->Branch("depositedEnergySolenoid", &this->depositedEnergySolenoid, "depositedEnergySolenoid/F");
+  //  this->GetTree()->Branch("depositedEnergySolenoid", &this->depositedEnergySolenoid, "depositedEnergySolenoid/F");
   this->GetTree()->Branch("depositedIonEnergyTotal", &this->depositedIonEnergyTotal, "depositedIonEnergyTotal/F");
   /*
   this->GetTree()->Branch("depositedIonEnergyECAL_f", &this->depositedIonEnergyECAL_f, "depositedIonEnergyECAL_f[3]/F");
@@ -72,23 +76,23 @@ CreateTree::CreateTree(TString name)
   */
   this->GetTree()->Branch("depositedIonEnergyECAL_f", &this->depositedIonEnergyECAL_f, "depositedIonEnergyECAL_f/F");
   this->GetTree()->Branch("depositedIonEnergyECAL_r", &this->depositedIonEnergyECAL_r, "depositedIonEnergyECAL_r/F");
-  this->GetTree()->Branch("depositedIonEnergyHCALAct", &this->depositedIonEnergyHCALAct, "depositedIonEnergyHCALAct/F");
-  this->GetTree()->Branch("depositedIonEnergyHCALPas", &this->depositedIonEnergyHCALPas, "depositedIonEnergyHCALPas/F");
+  //  this->GetTree()->Branch("depositedIonEnergyHCALAct", &this->depositedIonEnergyHCALAct, "depositedIonEnergyHCALAct/F");
+  //  this->GetTree()->Branch("depositedIonEnergyHCALPas", &this->depositedIonEnergyHCALPas, "depositedIonEnergyHCALPas/F");
   this->GetTree()->Branch("depositedIonEnergyWorld", &this->depositedIonEnergyWorld, "depositedIonEnergyWorld/F");
-  this->GetTree()->Branch("depositedIonEnergyServices", &this->depositedIonEnergyServices, "depositedIonEnergyServices/F");
+  //  this->GetTree()->Branch("depositedIonEnergyServices", &this->depositedIonEnergyServices, "depositedIonEnergyServices/F");
   this->GetTree()->Branch("depositedIonEnergyEcalGap", &this->depositedIonEnergyEcalGap, "depositedIonEnergyEcalGap/F");
   this->GetTree()->Branch("depositedIonEnergyEcalDet", &this->depositedIonEnergyEcalDet, "depositedIonEnergyEcalDet/F");
-  this->GetTree()->Branch("depositedIonEnergySolenoid", &this->depositedIonEnergySolenoid, "depositedIonEnergySolenoid/F");
+  //  this->GetTree()->Branch("depositedIonEnergySolenoid", &this->depositedIonEnergySolenoid, "depositedIonEnergySolenoid/F");
   this->GetTree()->Branch("depositedElecEnergyTotal", &this->depositedElecEnergyTotal, "depositedElecEnergyTotal/F");
   this->GetTree()->Branch("depositedElecEnergyECAL_f", &this->depositedElecEnergyECAL_f, "depositedElecEnergyECAL_f[3]/F");
   this->GetTree()->Branch("depositedElecEnergyECAL_r", &this->depositedElecEnergyECAL_r, "depositedElecEnergyECAL_r[3]/F");
-  this->GetTree()->Branch("depositedElecEnergyHCALAct", &this->depositedElecEnergyHCALAct, "depositedElecEnergyHCALAct/F");
-  this->GetTree()->Branch("depositedElecEnergyHCALPas", &this->depositedElecEnergyHCALPas, "depositedElecEnergyHCALPas/F");
+  //  this->GetTree()->Branch("depositedElecEnergyHCALAct", &this->depositedElecEnergyHCALAct, "depositedElecEnergyHCALAct/F");
+  //  this->GetTree()->Branch("depositedElecEnergyHCALPas", &this->depositedElecEnergyHCALPas, "depositedElecEnergyHCALPas/F");
   this->GetTree()->Branch("depositedElecEnergyWorld", &this->depositedElecEnergyWorld, "depositedElecEnergyWorld/F");
-  this->GetTree()->Branch("depositedElecEnergyServices", &this->depositedElecEnergyServices, "depositedElecEnergyServices/F");
+  //  this->GetTree()->Branch("depositedElecEnergyServices", &this->depositedElecEnergyServices, "depositedElecEnergyServices/F");
   this->GetTree()->Branch("depositedElecEnergyEcalGap", &this->depositedElecEnergyEcalGap, "depositedElecEnergyEcalGap/F");
   this->GetTree()->Branch("depositedElecEnergyEcalDet", &this->depositedElecEnergyEcalDet, "depositedElecEnergyEcalDet/F");
-  this->GetTree()->Branch("depositedElecEnergySolenoid", &this->depositedElecEnergySolenoid, "depositedElecEnergySolenoid/F");
+  //  this->GetTree()->Branch("depositedElecEnergySolenoid", &this->depositedElecEnergySolenoid, "depositedElecEnergySolenoid/F");
 
   //single channels
   this->GetTree()->Branch("Edep_Tracker_layer", &this->Edep_Tracker_layer, "Edep_Tracker_layer[6]/F");
@@ -184,6 +188,7 @@ void CreateTree::Clear()
 {
   Event = 0;
 
+  /*
   nTracksT1 = 0;
   nTracksT2 = 0;
   nTracksE1 = 0;
@@ -193,6 +198,7 @@ void CreateTree::Clear()
   {
     nTracksTRK[iLayer] = 0;
   }
+  */
 
   depositedEnergyEscapeWorld = 0.;
 
@@ -205,13 +211,13 @@ void CreateTree::Clear()
 */
   depositedEnergyECAL_f = 0.;
   depositedEnergyECAL_r = 0.;
-  depositedEnergyHCALAct = 0.;
-  depositedEnergyHCALPas = 0.;
+  //  depositedEnergyHCALAct = 0.;
+  //  depositedEnergyHCALPas = 0.;
   depositedEnergyWorld = 0.;
-  depositedEnergyServices = 0.;
+  //  depositedEnergyServices = 0.;
   depositedEnergyEcalGap = 0.;
   depositedEnergyEcalDet = 0.;
-  depositedEnergySolenoid = 0.;
+  //  depositedEnergySolenoid = 0.;
 
   depositedIonEnergyTotal = 0.;
   depositedIonEnergyECAL_f=0;
@@ -222,26 +228,26 @@ void CreateTree::Clear()
     depositedIonEnergyECAL_r[i] = 0.;
     }
 */
-  depositedIonEnergyHCALAct = 0.;
-  depositedIonEnergyHCALPas = 0.;
+  //  depositedIonEnergyHCALAct = 0.;
+  //  depositedIonEnergyHCALPas = 0.;
   depositedIonEnergyWorld = 0.;
-  depositedIonEnergyServices = 0.;
+  //  depositedIonEnergyServices = 0.;
   depositedIonEnergyEcalGap = 0.;
   depositedIonEnergyEcalDet = 0.;
-  depositedIonEnergySolenoid = 0.;
+  //  depositedIonEnergySolenoid = 0.;
 
   depositedElecEnergyTotal = 0.;
   for (int i = 0; i < 3; i++){
     depositedElecEnergyECAL_f[i] = 0.;
     depositedElecEnergyECAL_r[i] = 0.;
   }
-  depositedElecEnergyHCALAct = 0.;
-  depositedElecEnergyHCALPas = 0.;
+  //  depositedElecEnergyHCALAct = 0.;
+  //  depositedElecEnergyHCALPas = 0.;
   depositedElecEnergyWorld = 0.;
-  depositedElecEnergyServices = 0.;
+  //  depositedElecEnergyServices = 0.;
   depositedElecEnergyEcalGap = 0.;
   depositedElecEnergyEcalDet = 0.;
-  depositedElecEnergySolenoid = 0.;
+  //  depositedElecEnergySolenoid = 0.;
 
   ECAL_f_total_C = 0.;
   ECAL_r_total_S = 0.;
@@ -267,24 +273,28 @@ void CreateTree::Clear()
     Edep_Tracker_layer[iLayer] = 0.;
   }
 
-
+  
   for (int i = 0; i < 3; ++i)
   {
     inputInitialPosition->at(i) = 0.;
-    primaryPosT1->at(i) = 0.;
-    primaryPosE1->at(i) = 0.;
+    //primaryPosT1->at(i) = 0.;
+    //primaryPosE1->at(i) = 0.;
   }
+  
+  
   for (int i = 0; i < 4; ++i)
   {
     inputMomentum->at(i) = 0.;
-    primaryMomT1->at(i) = 0.;
-    primaryMomE1->at(i) = 0.;
+    //primaryMomT1->at(i) = 0.;
+    //primaryMomE1->at(i) = 0.;
   }
-
+  primaryID=0;
+  /*
   for (int i = 0; i < 3; ++i)
   {
     inputInitialPosition->at(i) = 0.;
     primaryPosT1->at(i) = 0.;
     primaryPosE1->at(i) = 0.;
   }
+  */
 }

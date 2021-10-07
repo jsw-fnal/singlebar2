@@ -53,6 +53,7 @@ void EventAction::BeginOfEventAction(const G4Event *evt)
   G4double z = vertex->GetZ0();
 
   G4PrimaryParticle *particle = vertex->GetPrimary();
+  G4int pdgID = particle->GetPDGcode();
   G4double InitEnergy = particle->GetTotalEnergy();
   G4double px = particle->GetPx();
   G4double py = particle->GetPy();

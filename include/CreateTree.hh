@@ -38,7 +38,7 @@ public:
   static CreateTree *fInstance;
 
   int Event;
-
+  /*
   int inputTrackerX0;
   int inputServiceAlmm;
   int inputTimingThick;
@@ -46,21 +46,26 @@ public:
   int inputE2Thick;
   int inputE1Width;
   int inputTimingECAL_dist;
+  */
 
   std::vector<float> *inputMomentum;        // Px Py Pz E
   std::vector<float> *inputInitialPosition; // x, y, z
+  int primaryID;  /// pdg ID of initila beam particle
 
+  /*
   std::vector<float> *primaryMomT1; // Px Py Pz E
   std::vector<float> *primaryPosT1; // x, y, z
 
   std::vector<float> *primaryMomE1; // Px Py Pz E
   std::vector<float> *primaryPosE1; // x, y, z
-
+  */
+  /*
   int nTracksT1;
   int nTracksT2;
   int nTracksE1;
   int nTracksE2;
   int nTracksTRK[6];
+  */
 
   //integrated energy in each longitudinal layer
   float depositedEnergyEscapeWorld;
@@ -72,12 +77,12 @@ public:
   float depositedEnergyECAL_f;
   float depositedEnergyECAL_r;
 
-  float depositedEnergyHCALAct;
-  float depositedEnergyHCALPas;
-  float depositedEnergyServices;
+  //float depositedEnergyHCALAct;
+  //float depositedEnergyHCALPas;
+  //  float depositedEnergyServices;
   float depositedEnergyEcalGap;
   float depositedEnergyEcalDet;
-  float depositedEnergySolenoid;
+  //  float depositedEnergySolenoid;
   float depositedEnergyWorld;
 
   float depositedEnergyEcalFront;
@@ -89,21 +94,21 @@ public:
   float depositedIonEnergyECAL_r;
   float depositedIonEnergyHCALAct;
   float depositedIonEnergyHCALPas;
-  float depositedIonEnergyServices;
+  //  float depositedIonEnergyServices;
   float depositedIonEnergyEcalGap;
   float depositedIonEnergyEcalDet;
-  float depositedIonEnergySolenoid;
+  //  float depositedIonEnergySolenoid;
   float depositedIonEnergyWorld;
 
   float depositedElecEnergyTotal;
   float depositedElecEnergyECAL_f[3];
   float depositedElecEnergyECAL_r[3];
-  float depositedElecEnergyHCALAct;
-  float depositedElecEnergyHCALPas;
-  float depositedElecEnergyServices;
+  //  float depositedElecEnergyHCALAct;
+  //  float depositedElecEnergyHCALPas;
+  //  float depositedElecEnergyServices;
   float depositedElecEnergyEcalGap;
   float depositedElecEnergyEcalDet;
-  float depositedElecEnergySolenoid;
+  //  float depositedElecEnergySolenoid;
   float depositedElecEnergyWorld;
 
   //store the energy deposition by components
