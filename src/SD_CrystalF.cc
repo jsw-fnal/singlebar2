@@ -83,15 +83,21 @@ SD_CrystalF::ProcessHits( G4Step*       theStep,
 
     // photon production info
     if (nStep == 1) {
-      if (isScin) CreateTree::Instance()->ECAL_f_total_S += 1;
-      else if (isCher) CreateTree::Instance()->ECAL_f_total_C += 1;
+      if (isScin) {
+	CreateTree::Instance()->ECAL_f_total_S += 1;
+	CreateTree::Instance()->h_phot_lambda_ECAL_f_produce_Scin->Fill(photWL);
+      }
+      else if (isCher) {
+	CreateTree::Instance()->ECAL_f_total_C += 1;
+	CreateTree::Instance()->h_phot_lambda_ECAL_f_produce_Ceren->Fill(photWL);
+      }
     }
 
     // is photon leaving front face of xtal?
     if (thePostPVName.contains("matchBox") || thePostPVName.contains("baffle")){ 
       if (isScin) CreateTree::Instance()->ECAL_f_exit_S += 1;
       else if (isCher) CreateTree::Instance()->ECAL_f_exit_C += 1;
-      // kill track at baffle for now
+      // kill track at baffle for now, no reflection
       if (thePostPVName.contains("baffle")) theTrack->SetTrackStatus(fKillTrackAndSecondaries);
     }
 
