@@ -118,11 +118,13 @@ DetectorConstruction::DetectorConstruction(const string &configFileName)
 
 
   config.readInto(ecal_material, "ecal_material");
+  config.readInto(ecal_surface, "ecal_surface");
 
   config.readInto(ecal_front_length, "ecal_front_length");
   config.readInto(ecal_rear_length, "ecal_rear_length");
   config.readInto(ecal_front_face, "ecal_front_face");
   config.readInto(ecal_rear_face, "ecal_rear_face");
+  
 
   config.readInto(sipm_size_x,"sipm_size_x");
   config.readInto(sipm_size_y,"sipm_size_y");
@@ -367,8 +369,8 @@ G4VPhysicalVolume *DetectorConstruction::Construct()
   xtalAssembly->AddPlacedAssembly(sipmAssembly_r, Ta, &Ra);
   
   // set surface properties
-  G4LogicalSkinSurface *crystalSurface_f = new G4LogicalSkinSurface("crystalSurface_f", ecalCrystalL_f, fIdealPolishedOpSurface);
-  G4LogicalSkinSurface *crystalSurface_r = new G4LogicalSkinSurface("crystalSurface_r", ecalCrystalL_r, fIdealPolishedOpSurface);
+  G4LogicalSkinSurface *crystalSurface_f = new G4LogicalSkinSurface("crystalSurface_f", ecalCrystalL_f, fECALSurface);
+  G4LogicalSkinSurface *crystalSurface_r = new G4LogicalSkinSurface("crystalSurface_r", ecalCrystalL_r, fECALSurface);
 
   G4LogicalSkinSurface *ecalWrapperSurface_f = new G4LogicalSkinSurface("ecalWrapperSurface_f", ecalWrapperL_f, fFiberWrapSurface);   // to do: change 'fiber' name
   G4LogicalSkinSurface *ecalWrapperSurface_r = new G4LogicalSkinSurface("ecalWrapperSurface_r", ecalWrapperL_r, fFiberWrapSurface);
@@ -778,6 +780,9 @@ void DetectorConstruction::initializeSurface()
     fFiberWrapSurface->SetMaterialPropertiesTable(table);
   }
   fIdealPolishedOpSurface = MakeS_IdealPolished();
+  fPolishedOpSurface = MakeS_Polished();
+  fECALSurface=fIdealPolishedOpSurface;
+  if (ecal_surface==1) fECALSurface=fPolishedOpSurface;
   /*
 //perfect reflection
   static const unsigned nentriesc = 2;

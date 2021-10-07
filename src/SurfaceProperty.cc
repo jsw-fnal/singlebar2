@@ -111,6 +111,7 @@ MakeS_IdealPolished()
   return surface;
 }
 
+
 G4OpticalSurface *
 MakeS_Mirror()
 {

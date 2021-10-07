@@ -78,40 +78,6 @@ public:
   void SetMaxStep(G4double);
   void initializeSurface();
 
-  void AddModule(G4LogicalVolume *LV, int ix, int iy, 
-		 G4LogicalVolume *sipmBaseL, G4LogicalVolume *sipmActiveL, G4LogicalVolume *sipmInActiveL,
-		 G4LogicalVolume *ecalCrystalL_f, G4LogicalVolume *ecalWrapperL_f,
-		 G4LogicalVolume *ecalCrystalL_r, G4LogicalVolume *ecalWrapperL_r, 
-		 G4double wgap, G4double sgap, G4double zgap);
-
-/*
-  void initializeSurfaces(G4OpticalSurface *mySurface, string surfaceType);
-  void initializeReflectivitySurface(G4OpticalSurface *surface, string surfaceType);
-    TString cReffile;
-    G4double cReflectivity;
-    G4double cSurrefind;
-    int cSurtype;
-    G4double cSpecularspike;
-    G4double cSpecularlobe;
-    G4double cSigmaalpha;
-    G4double cLambertian;
-    G4double cBackscatter;
-    int crystalSurfinish;
-    TString RefFile;
-    G4double reflectivity;
-    G4double surrefind;
-    int surtype;
-    G4double specularspike;
-    G4double specularlobe;
-    G4double sigmaalpha;
-    G4double lambertian;
-    G4double backscatter;
-    G4double crystal_reflectivity;
-    int surfinish;
-    G4double Ephoton[3];
-    G4double mu_ind;
-*/
-
 
   Fiber *GetFiber() { return &fib; };
 
@@ -140,6 +106,7 @@ private:
 
   G4int det_material;
 
+  
 
   G4double depth;
   G4double cryst_dist;
@@ -151,7 +118,6 @@ private:
   G4double ecal_z_gap;
 
   G4double fiber_type;
-  G4int ecal_material;
   G4int scinti_material;
   G4int Cherenc_material;
   G4int Cherenp_material;
@@ -160,6 +126,8 @@ private:
   G4int front_filter;
   G4int rear_filter;
 
+  G4int ecal_material;
+  G4int ecal_surface;
   G4double ecal_front_length;
   G4double ecal_rear_length;
   G4double ecal_front_face;
@@ -209,8 +177,10 @@ private:
   G4OpticalSurface* fPMTSurface;
   G4OpticalSurface* fPMTCaseSurface;
   G4OpticalSurface* fIdealPolishedOpSurface;
+  G4OpticalSurface* fPolishedOpSurface;
   G4OpticalSurface* fFilterSurface_ff;
   G4OpticalSurface* fFilterSurface_fr;
+  G4OpticalSurface* fECALSurface;
   G4UserLimits *stepLimit; // pointer to user step limits
 };
 
