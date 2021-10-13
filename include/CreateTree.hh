@@ -169,6 +169,20 @@ public:
   TH1F *h_phot_lambda_ECAL_r_produce_Ceren;
   TH1F *h_phot_lambda_ECAL_r_produce_Scin;
 
+  // time of photons production
+  TH1F *h_phot_time_ECAL_f_produce_Ceren;
+  TH1F *h_phot_time_ECAL_f_produce_Scin;
+  TH1F *h_phot_time_ECAL_r_produce_Ceren;
+  TH1F *h_phot_time_ECAL_r_produce_Scin;
+
+  // time of photons detected
+  TH1F *h_phot_time_SiPMF_Ceren;
+  TH1F *h_phot_time_SiPMF_Scin;
+  TH1F *h_phot_time_SiPMC_Ceren;
+  TH1F *h_phot_time_SiPMC_Scin;
+  TH1F *h_phot_time_SiPMS_Ceren;
+  TH1F *h_phot_time_SiPMS_Scin;
+
   // photons collected in front sipm
   TH1F *h_phot_lambda_SiPMF_f_Ceren;
   TH1F *h_phot_lambda_SiPMF_f_Scin;

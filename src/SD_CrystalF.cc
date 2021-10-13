@@ -63,6 +63,7 @@ SD_CrystalF::ProcessHits( G4Step*       theStep,
   G4double energyElec = 0;
   if (abs(TrPDGid) == 11) energyElec = energyIon; 
 
+ 
   CreateTree::Instance()->depositedEnergyECAL_f+=energy;
   CreateTree::Instance()->depositedIonEnergyECAL_f+=energyIon;
 
@@ -83,13 +84,17 @@ SD_CrystalF::ProcessHits( G4Step*       theStep,
 
     // photon production info
     if (nStep == 1) {
+      G4StepPoint *thePrePoint = theStep->GetPreStepPoint();
+      G4double gTime = thePrePoint->GetGlobalTime();
       if (isScin) {
 	CreateTree::Instance()->ECAL_f_total_S += 1;
 	CreateTree::Instance()->h_phot_lambda_ECAL_f_produce_Scin->Fill(photWL);
+	CreateTree::Instance()->h_phot_time_ECAL_f_produce_Scin->Fill(gTime);
       }
       else if (isCher) {
 	CreateTree::Instance()->ECAL_f_total_C += 1;
 	CreateTree::Instance()->h_phot_lambda_ECAL_f_produce_Ceren->Fill(photWL);
+	CreateTree::Instance()->h_phot_time_ECAL_f_produce_Ceren->Fill(gTime);
       }
     }
 

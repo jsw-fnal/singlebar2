@@ -51,10 +51,12 @@ SD_CrystalR::ProcessHits( G4Step*       theStep,
   G4int nStep = theTrack->GetCurrentStepNumber();
   G4int TrPDGid = theTrack->GetDefinition()->GetPDGEncoding();
 
-    // get position
+  // get position
+  /*
   G4double global_x = thePrePosition.x() / mm;
   G4double global_y = thePrePosition.y() / mm;
   G4double global_z = thePrePosition.z() / mm;
+  */
 
   G4double energy = theStep->GetTotalEnergyDeposit();
   G4double energyIon = energy - theStep->GetNonIonizingEnergyDeposit();
@@ -82,13 +84,17 @@ SD_CrystalR::ProcessHits( G4Step*       theStep,
 
     // photon production info
     if (nStep == 1) {
+      G4StepPoint *thePrePoint = theStep->GetPreStepPoint();
+      G4double gTime = thePrePoint->GetGlobalTime();
       if (isScin) {
 	CreateTree::Instance()->ECAL_r_total_S += 1;
 	CreateTree::Instance()->h_phot_lambda_ECAL_r_produce_Scin->Fill(photWL);
+	CreateTree::Instance()->h_phot_time_ECAL_r_produce_Scin->Fill(gTime);
       }
       else if (isCher) {
 	CreateTree::Instance()->ECAL_r_total_C += 1;
 	CreateTree::Instance()->h_phot_lambda_ECAL_r_produce_Ceren->Fill(photWL);
+	CreateTree::Instance()->h_phot_time_ECAL_r_produce_Ceren->Fill(gTime);
       }
     }
 
@@ -96,7 +102,7 @@ SD_CrystalR::ProcessHits( G4Step*       theStep,
     if (thePostPVName.contains("matchBox") || thePostPVName.contains("baffle")){ 
       if (isScin) CreateTree::Instance()->ECAL_r_exit_S += 1;
       else if (isCher) CreateTree::Instance()->ECAL_r_exit_C += 1;
-      // kill track at baffle for now
+      // kill track at baffle for now, no reflection
       if (thePostPVName.contains("baffle")) theTrack->SetTrackStatus(fKillTrackAndSecondaries);
     }
 

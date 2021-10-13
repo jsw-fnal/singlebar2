@@ -52,14 +52,18 @@ SD_sipmS::ProcessHits( G4Step*       theStep,
     return true;
   }
 
+  G4StepPoint *thePrePoint = theStep->GetPreStepPoint();
+  G4double gTime = thePrePoint->GetGlobalTime();
   // count some stuff
   if (processName == "Cerenkov") {
     CreateTree::Instance()->SDSdetected_r_C++;
     CreateTree::Instance()->h_phot_lambda_SiPMS_r_Ceren->Fill(photWL);
+    CreateTree::Instance()->h_phot_time_SiPMS_Ceren->Fill(gTime);
   }
   if (processName == "Scintillation") {
     CreateTree::Instance()->SDSdetected_r_S++;
     CreateTree::Instance()->h_phot_lambda_SiPMS_r_Scin->Fill(photWL);
+    CreateTree::Instance()->h_phot_time_SiPMS_Scin->Fill(gTime);
   }
   //G4cout  << "SD_simpF::ProcessHits  "/* << thePrePVName << " : " << thePostPVName*/ << endl;
 
