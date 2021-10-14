@@ -60,6 +60,7 @@ void EventAction::BeginOfEventAction(const G4Event *evt)
   G4double pz = particle->GetPz();
 
   CreateTree::Instance()->Event = evt->GetEventID();
+  CreateTree::Instance()->primaryID = pdgID;
   CreateTree::Instance()->inputInitialPosition->at(0) = x / mm;
   CreateTree::Instance()->inputInitialPosition->at(1) = y / mm;
   CreateTree::Instance()->inputInitialPosition->at(2) = z / mm;
