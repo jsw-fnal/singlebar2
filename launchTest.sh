@@ -1,1 +1,1 @@
-./build/CEPC_CaloTiming template.cfg
+./build/CV_Testbeam template.cfg

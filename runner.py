@@ -69,7 +69,7 @@ if __name__ == '__main__':
     update_param(run_mac,['/gps/particle',args.beam])
     
     # ./CEPC_CaloTiming -c template.cfg -m run.mac -o test 
-    command = "./CEPC_CaloTiming -m "+run_mac+" -c "+temp_cfg+" -o "+outfile
+    command = "./CV_Testbeam -m "+run_mac+" -c "+temp_cfg+" -o "+outfile
     #print(command,command.split())
     # use subprocess.run for python3
     subprocess.call(command.split())

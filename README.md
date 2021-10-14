@@ -18,11 +18,11 @@ For the interactive runing:
 
 Check the geometry through a detector viewing window
 ```bash
-./CEPC_CaloTiming -c template.cfg -u Qt  
+./CV_Testbeam -c template.cfg -u Qt  
 ```
 Run the events defined in run.mac
 ```bash
-./CEPC_CaloTiming -c template.cfg -m run.mac -o test
+./CV_Testbeam -c template.cfg -m run.mac -o test
 # -c config file
 # -m particle source
 # -o output file
