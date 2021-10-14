@@ -63,8 +63,8 @@ SD_CrystalR::ProcessHits( G4Step*       theStep,
   G4double energyElec = 0;
   if (abs(TrPDGid) == 11) energyElec = energyIon; 
 
-  CreateTree::Instance()->depositedEnergyECAL_r+=energy;
-  CreateTree::Instance()->depositedIonEnergyECAL_r+=energyIon;
+  CreateTree::Instance()->depositedEnergyECAL_r+=energy / GeV;
+  CreateTree::Instance()->depositedIonEnergyECAL_r+=energyIon / GeV;
 
 
  //------------- optical photon -------------
