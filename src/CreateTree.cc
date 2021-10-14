@@ -95,7 +95,7 @@ CreateTree::CreateTree(TString name)
   //  this->GetTree()->Branch("depositedElecEnergySolenoid", &this->depositedElecEnergySolenoid, "depositedElecEnergySolenoid/F");
 
   //single channels
-  this->GetTree()->Branch("Edep_Tracker_layer", &this->Edep_Tracker_layer, "Edep_Tracker_layer[6]/F");
+  //  this->GetTree()->Branch("Edep_Tracker_layer", &this->Edep_Tracker_layer, "Edep_Tracker_layer[6]/F");
 
 
 
@@ -286,12 +286,12 @@ void CreateTree::Clear()
 
 
   tot_phot_cer_HCAL = 0.;
-
+  /*
   for (int iLayer = 0; iLayer < 6; iLayer++)
   {
     Edep_Tracker_layer[iLayer] = 0.;
   }
-
+  */
   
   for (int i = 0; i < 3; ++i)
   {

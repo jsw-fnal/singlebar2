@@ -160,7 +160,7 @@ public:
   int SDSdetected_r_C;   // used
 
   /***************** begin to seperate energy into different channels    ******************/
-  float Edep_Tracker_layer[6];
+  // float Edep_Tracker_layer[6];
 
 
   // lambda of photons produced

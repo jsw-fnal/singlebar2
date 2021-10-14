@@ -34,14 +34,17 @@ SD_CrystalF::ProcessHits( G4Step*       theStep,
 {   
   G4Track *theTrack = theStep->GetTrack();
   G4ParticleDefinition *particleType = theTrack->GetDefinition();
-  G4StepPoint *thePrePoint = theStep->GetPreStepPoint();  /// not needed!!!
   G4StepPoint *thePostPoint = theStep->GetPostStepPoint();
+  G4VPhysicalVolume *thePostPV = thePostPoint->GetPhysicalVolume();
+
+  /*
+  G4StepPoint *thePrePoint = theStep->GetPreStepPoint(); 
   const G4ThreeVector &thePrePosition = thePrePoint->GetPosition();
   G4VPhysicalVolume *thePrePV = thePrePoint->GetPhysicalVolume();
-  G4VPhysicalVolume *thePostPV = thePostPoint->GetPhysicalVolume();
   G4String thePrePVName = "";
   if (thePrePV)
     thePrePVName = thePrePV->GetName();
+  */
   G4String thePostPVName = "";
   if (thePostPV)
     thePostPVName = thePostPV->GetName();
@@ -49,7 +52,7 @@ SD_CrystalF::ProcessHits( G4Step*       theStep,
   //cout  << "SD_CrystalF::ProcessHits  " << thePrePVName << " : " << thePostPVName << endl;
 
   G4int nStep = theTrack->GetCurrentStepNumber();
-  G4int TrPDGid = theTrack->GetDefinition()->GetPDGEncoding();
+  //G4int TrPDGid = theTrack->GetDefinition()->GetPDGEncoding();
 
   // get position
   /*
@@ -60,8 +63,8 @@ SD_CrystalF::ProcessHits( G4Step*       theStep,
 
   G4double energy = theStep->GetTotalEnergyDeposit();
   G4double energyIon = energy - theStep->GetNonIonizingEnergyDeposit();
-  G4double energyElec = 0;
-  if (abs(TrPDGid) == 11) energyElec = energyIon; 
+  //G4double energyElec = 0;
+  //if (abs(TrPDGid) == 11) energyElec = energyIon; 
 
  
   CreateTree::Instance()->depositedEnergyECAL_f+=energy / GeV;
