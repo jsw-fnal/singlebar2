@@ -28,6 +28,14 @@ Run the events defined in run.mac
 # -o output file
 ```
 
+Use the runner script
+```bash
+python runner.py -b <beam> -G <E in GeV> of -M <E in MeV> -n <events> -o<outputfile>
+use standard GEANT particle names:  [e-,pi+,mu-,gamma,etc]
+example: python runner.py -bpi+ -G10 -n10 -opi_test
+```
+
+
 ## Template to access and build the examples
 ```
 ls $G4EXAMPLES
