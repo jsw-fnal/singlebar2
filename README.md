@@ -40,6 +40,7 @@ example: python runner.py -bpi+ -G10 -n10 -opi_test
 ```
 ls $G4EXAMPLES
 cd /tmp; mkdir geant-test; cd geant-test
+# build a specific example, eg
 cmake $G4EXAMPLES/basic/B5
 make
 ./exampleB5
