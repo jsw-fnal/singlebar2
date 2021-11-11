@@ -110,11 +110,6 @@ void EventAction::EndOfEventAction(const G4Event *evt)
   }
 */
 
-
-  //CreateTree::Instance()->tot_phot_cer_SDdetected_ff = EventPhotonCount_ff;
-  //CreateTree::Instance()->tot_phot_cer_SDdetected_fr = EventPhotonCount_fr;
-  //CreateTree::Instance()->tot_phot_cer_SDdetected_rf = EventPhotonCount_rf;
-  //CreateTree::Instance()->tot_phot_cer_SDdetected_rr = EventPhotonCount_rr;
   CreateTree::Instance()->Fill();
 }
 

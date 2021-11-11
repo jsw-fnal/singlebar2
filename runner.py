@@ -17,14 +17,14 @@ def update_param(file,tp):
             print(tp[0],tp[1])
         else: print (line.strip()),
             
-
+# using template cfg files, make files for this run
 import tempfile, shutil, os
-def make_tmpfiles(f_run,f_cfg):
-    tmp_run = tempfile.mkstemp()[1]
-    tmp_cfg = tempfile.mkstemp()[1]
-    shutil.copy2(f_run, tmp_run)
-    shutil.copy2(f_cfg, tmp_cfg)
-    return tmp_run,tmp_cfg
+#def make_tmpfiles(f_run,f_cfg):
+#    tmp_run = tempfile.mkstemp()[1]
+#    tmp_cfg = tempfile.mkstemp()[1]
+#    shutil.copy2(f_run, tmp_run)
+#    shutil.copy2(f_cfg, tmp_cfg)
+#    return tmp_run,tmp_cfg
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='GEANT Runner Script')
@@ -38,11 +38,18 @@ if __name__ == '__main__':
                         help="Number of events to run"
     )
     parser.add_argument("-b", "--beam", default="e-",
-                        help="Beam particle type"
+                        help="Beam particle type (eg, pi-, mu-, e-)"
+    )
+    parser.add_argument("-d", "--outdir", default=".",
+                        help="Output directory name [.]"
     )
     parser.add_argument("-o", "--output", default="test",
                         help="Output file name[.root]"
     )
+    parser.add_argument("-g", "--SiPMgapMaterial", default="1",
+                        help="Material between xtal face and SiPM ([1 air], 2 optical grease, 5 silcone"
+    )
+
     args = parser.parse_args()
     
     if args.GeV>0: 
@@ -58,18 +65,31 @@ if __name__ == '__main__':
     outfile=args.output
     if outfile.endswith(".root"): outfile=outfile[:-5]
 
+    if not args.outdir==".":
+        if not os.path.exists(args.outdir):
+            os.makedirs(args.outdir)
+    
+
     print("Simulating",args.beam,"beam at",E,Eunit)
     print("Output:",outfile+".root");
     
 
-    run_mac,temp_cfg = make_tmpfiles('run.mac','template.cfg')
-    #print(run_mac,temp_cfg)
+    run_mac = args.outdir+"/"+outfile+'.runmac'
+    shutil.copy2('run.mac', run_mac)
+    temp_cfg = args.outdir+"/"+outfile+'.cfg'
+    shutil.copy2('template.cfg',temp_cfg)
+    outfile=args.outdir+"/"+outfile
+
+    print(run_mac,temp_cfg)
     update_param(run_mac,['/run/beamOn',args.nevent])
     update_param(run_mac,['/gps/energy',str(E)+" "+Eunit])
     update_param(run_mac,['/gps/particle',args.beam])
+    update_param(temp_cfg,['gap_material',' = '+args.SiPMgapMaterial])
     
-    # ./CEPC_CaloTiming -c template.cfg -m run.mac -o test 
-    command = "./CV_Testbeam -m "+run_mac+" -c "+temp_cfg+" -o "+outfile
-    #print(command,command.split())
+    # ./CEPC_CaloTiming -c template.cfg -m run.mac -o test
+    EXE=os.getcwd()+'/CV_Testbeam'
+    
+    command = EXE + ' -m ' + run_mac + ' -c ' + temp_cfg + ' -o ' + outfile
+    # print(command,command.split())
     # use subprocess.run for python3
     subprocess.call(command.split())

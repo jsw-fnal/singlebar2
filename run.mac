@@ -3,12 +3,12 @@
 # Macro file for the
 # initialization of G4GeneralParticleSource
 
-# cosmics
-/gps/energy 10 GeV
-/gps/particle mu-
+# beam
+/gps/energy 1 GeV
+#/gps/particle mu-
 #/gps/particle gamma
 #/gps/particle pi-
-#/gps/particle e-
+/gps/particle e-
 
 
 /gps/pos/type Plane
