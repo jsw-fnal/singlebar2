@@ -46,6 +46,10 @@ if __name__ == '__main__':
     parser.add_argument("-o", "--output", default="test",
                         help="Output file name[.root]"
     )
+    parser.add_argument("-f", "--force", default=None,
+                        help="Force overwrite",
+                        action="store_true"
+    )
     parser.add_argument("-g", "--SiPMgapMaterial", default="1",
                         help="Material between xtal face and SiPM ([1 air], 2 optical grease, 5 silcone"
     )
@@ -64,11 +68,17 @@ if __name__ == '__main__':
     beam=args.beam
     outfile=args.output
     if outfile.endswith(".root"): outfile=outfile[:-5]
+    if os.path.exists(outfile+".root"):
+        if args.force:
+            print("Replacing",outfile+".root")
+        else:
+            print(outfile+".root exists, exiting...")
+            sys.exit(1)
 
     if not args.outdir==".":
         if not os.path.exists(args.outdir):
             os.makedirs(args.outdir)
-    
+        
 
     print("Simulating",args.beam,"beam at",E,Eunit)
     print("Output:",outfile+".root");
