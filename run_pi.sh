@@ -10,3 +10,10 @@ python runner.py -bpi- -G1 -n500 -opi_1GeV  -g2 -d og_gap
 python runner.py -bpi- -G3 -n500 -opi_3GeV  -g2 -d og_gap
 python runner.py -bpi- -G10 -n500 -opi_10GeV  -g2 -d og_gap
 python runner.py -bpi- -G30 -n500 -opi_30GeV  -g2 -d og_gap
+
+
+python runner.py -bpi- -M300 -n500 -opi_300MeV  -g5 -d si_gap
+python runner.py -bpi- -G1 -n500 -opi_1GeV  -g5 -d si_gap
+python runner.py -bpi- -G3 -n500 -opi_3GeV  -g5 -d si_gap
+python runner.py -bpi- -G10 -n500 -opi_10GeV  -g5 -d si_gap
+python runner.py -bpi- -G30 -n500 -opi_30GeV  -g5 -d si_gap

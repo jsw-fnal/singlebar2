@@ -9,3 +9,10 @@ python runner.py -be- -G1 -n500 -oel_1GeV -g2 -d og_gap
 python runner.py -be- -G3 -n500 -oel_3GeV -g2 -d og_gap
 python runner.py -be- -G10 -n500 -oel_10GeV -g2 -d og_gap
 python runner.py -be- -G30 -n500 -oel_30GeV -g2 -d og_gap
+
+
+python runner.py -be- -M300 -n500 -oel_300MeV -g5 -d si_gap
+python runner.py -be- -G1 -n500 -oel_1GeV -g5 -d si_gap
+python runner.py -be- -G3 -n500 -oel_3GeV -g5 -d si_gap
+python runner.py -be- -G10 -n500 -oel_10GeV -g5 -d si_gap
+python runner.py -be- -G30 -n500 -oel_30GeV -g5 -d si_gap

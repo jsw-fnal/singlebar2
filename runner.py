@@ -89,6 +89,7 @@ if __name__ == '__main__':
     temp_cfg = args.outdir+"/"+outfile+'.cfg'
     shutil.copy2('template.cfg',temp_cfg)
     outfile=args.outdir+"/"+outfile
+    logfile=outfile+".log"
 
     print(run_mac,temp_cfg)
     update_param(run_mac,['/run/beamOn',args.nevent])
@@ -99,7 +100,8 @@ if __name__ == '__main__':
     # ./CEPC_CaloTiming -c template.cfg -m run.mac -o test
     EXE=os.getcwd()+'/CV_Testbeam'
     
-    command = EXE + ' -m ' + run_mac + ' -c ' + temp_cfg + ' -o ' + outfile
-    # print(command,command.split())
+    command = EXE + ' -m ' + run_mac + ' -c ' + temp_cfg + ' -o ' + outfile +  ' > ' + logfile
+    print(command,command.split())
     # use subprocess.run for python3
-    subprocess.call(command.split())
+    #subprocess.call(command.split(), shell=True)
+    subprocess.call(command, shell=True)
