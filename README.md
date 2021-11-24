@@ -101,19 +101,19 @@ energy deposited
 - Branch("depositedIonEnergyECAL_f", &this->depositedIonEnergyECAL_f, "depositedIonEnergyECAL_f/F")
 - Branch("depositedIonEnergyECAL_r", &this->depositedIonEnergyECAL_r, "depositedIonEnergyECAL_r/F")
   
-// count of Scint and Cherenkov photons produced in crystal bars
+count of Scint and Cherenkov photons produced in crystal bars
 - Branch("ECAL_f_total_S", &this->ECAL_f_total_S, "ECAL_f_total_S/I")
 - Branch("ECAL_f_total_C", &this->ECAL_f_total_C, "ECAL_f_total_C/I")
 - Branch("ECAL_r_total_S", &this->ECAL_r_total_S, "ECAL_r_total_S/I")
 - Branch("ECAL_r_total_C", &this->ECAL_r_total_C, "ECAL_r_total_C/I")  
 
-// count of photons exiting front and rear crystals
+count of photons exiting front and rear crystals
 - Branch("ECAL_f_exit_S", &this->ECAL_f_exit_S, "ECAL_f_exit_S/I")
 - Branch("ECAL_f_exit_C", &this->ECAL_f_exit_C, "ECAL_f_exit_C/I")
 - Branch("ECAL_r_exit_S", &this->ECAL_r_exit_S, "ECAL_r_exit_S/I")
 - Branch("ECAL_r_exit_C", &this->ECAL_r_exit_C, "ECAL_r_exit_C/I")
 
-// count of photons detected in three SiPM detectors
+count of photons detected in three SiPM detectors
 - Branch("SDFdetected_f_S", &this->SDFdetected_f_S, "SDFdetected_f_S/I")
 - Branch("SDFdetected_f_C", &this->SDFdetected_f_C, "SDFdetected_f_C/I")
 - Branch("SDCdetected_r_S", &this->SDCdetected_r_S, "SDCdetected_r_S/I")
