@@ -54,6 +54,70 @@ cd template
 source generate_temp.sh
 ```
 
+## Root file
 
+__Histograms__
 
+lambda of photons produced: (f)ront/(rear) crystal, Cherenkov/Scintillation light
+- h_phot_lambda_ECAL_f_produce_Ceren
+- h_phot_lambda_ECAL_f_produce_Scin
+- h_phot_lambda_ECAL_r_produce_Ceren
+- h_phot_lambda_ECAL_r_produce_Scin
 
+time of photon production (ns)
+- h_phot_time_ECAL_f_produce_Ceren
+- h_phot_time_ECAL_f_produce_Scin
+- h_phot_time_ECAL_r_produce_Ceren
+- h_phot_time_ECAL_r_produce_Scin
+
+time of photon detected: SiPM(F) in front SiPM(C/S) in rear, Cherenkov/Scintillation light
+- h_phot_time_SiPMF_Ceren
+- h_phot_time_SiPMF_Scin
+- h_phot_time_SiPMC_Ceren
+- h_phot_time_SiPMC_Scin
+- h_phot_time_SiPMS_Ceren
+- h_phot_time_SiPMS_Scin
+
+photons collected in front sipm
+- h_phot_lambda_SiPMF_f_Ceren
+- h_phot_lambda_SiPMF_f_Scin
+
+photons collected in rear sipms
+- h_phot_lambda_SiPMC_r_Ceren
+- h_phot_lambda_SiPMC_r_Scin 
+- h_phot_lambda_SiPMS_r_Ceren
+- h_phot_lambda_SiPMS_r_Scin
+
+__Branches in tree__ (partial list)
+
+beam parameters
+- Branch("inputMomentum", "vector<float>", &inputMomentum)  3-momentum, MeV
+- Branch("primaryID", &this->primaryID, "primaryID/I") beam particle ID
+
+energy deposited
+- Branch("depositedEnergyECAL_f", &this->depositedEnergyECAL_f, "depositedEnergyECAL_f/F") MeV
+- Branch("depositedEnergyECAL_r", &this->depositedEnergyECAL_r, "depositedEnergyECAL_r/F") MeV
+- Branch("depositedIonEnergyTotal", &this->depositedIonEnergyTotal, "depositedIonEnergyTotal/F") ionization energy
+- Branch("depositedIonEnergyECAL_f", &this->depositedIonEnergyECAL_f, "depositedIonEnergyECAL_f/F")
+- Branch("depositedIonEnergyECAL_r", &this->depositedIonEnergyECAL_r, "depositedIonEnergyECAL_r/F")
+  
+// count of Scint and Cherenkov photons produced in crystal bars
+- Branch("ECAL_f_total_S", &this->ECAL_f_total_S, "ECAL_f_total_S/I")
+- Branch("ECAL_f_total_C", &this->ECAL_f_total_C, "ECAL_f_total_C/I")
+- Branch("ECAL_r_total_S", &this->ECAL_r_total_S, "ECAL_r_total_S/I")
+- Branch("ECAL_r_total_C", &this->ECAL_r_total_C, "ECAL_r_total_C/I")  
+
+// count of photons exiting front and rear crystals
+- Branch("ECAL_f_exit_S", &this->ECAL_f_exit_S, "ECAL_f_exit_S/I")
+- Branch("ECAL_f_exit_C", &this->ECAL_f_exit_C, "ECAL_f_exit_C/I")
+- Branch("ECAL_r_exit_S", &this->ECAL_r_exit_S, "ECAL_r_exit_S/I")
+- Branch("ECAL_r_exit_C", &this->ECAL_r_exit_C, "ECAL_r_exit_C/I")
+
+// count of photons detected in three SiPM detectors
+- Branch("SDFdetected_f_S", &this->SDFdetected_f_S, "SDFdetected_f_S/I")
+- Branch("SDFdetected_f_C", &this->SDFdetected_f_C, "SDFdetected_f_C/I")
+- Branch("SDCdetected_r_S", &this->SDCdetected_r_S, "SDCdetected_r_S/I")
+- Branch("SDCdetected_r_C", &this->SDCdetected_r_C, "SDCdetected_r_C/I")
+- Branch("SDSdetected_r_S", &this->SDSdetected_r_S, "SDSdetected_r_S/I")
+  
+  this->GetTree()->Branch("SDSdetected_r_C", &this->SDSdetected_r_C, "SDSdetected_r_C/I");
