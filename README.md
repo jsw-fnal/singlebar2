@@ -119,5 +119,4 @@ energy deposited
 - Branch("SDCdetected_r_S", &this->SDCdetected_r_S, "SDCdetected_r_S/I")
 - Branch("SDCdetected_r_C", &this->SDCdetected_r_C, "SDCdetected_r_C/I")
 - Branch("SDSdetected_r_S", &this->SDSdetected_r_S, "SDSdetected_r_S/I")
-  
-  this->GetTree()->Branch("SDSdetected_r_C", &this->SDSdetected_r_C, "SDSdetected_r_C/I");
+- Branch("SDSdetected_r_C", &this->SDSdetected_r_C, "SDSdetected_r_C/I")
