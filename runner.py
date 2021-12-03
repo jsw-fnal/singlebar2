@@ -51,9 +51,18 @@ if __name__ == '__main__':
                         action="store_true"
     )
     parser.add_argument("-g", "--SiPMgapMaterial", default="1",
-                        help="Material between xtal face and SiPM ([1 air], 2 optical grease, 5 silcone"
+                        help="Material between xtal face and SiPM ([1 air], 2 optical grease, 5 silcone)"
+    )
+    # fix material 17
+    parser.add_argument("-w", "--WrapperMaterial", default="18",
+                        help="Crystal wapper material (17 Epoxy, [18 Al])"  
+    )
+    parser.add_argument("-p", "--idealPolished", default=None,
+                        help="Use ideal polished surfaces",
+                        action="store_true"
     )
 
+    
     args = parser.parse_args()
     
     if args.GeV>0: 
@@ -96,6 +105,9 @@ if __name__ == '__main__':
     update_param(run_mac,['/gps/energy',str(E)+" "+Eunit])
     update_param(run_mac,['/gps/particle',args.beam])
     update_param(temp_cfg,['gap_material',' = '+args.SiPMgapMaterial])
+    update_param(temp_cfg,['wrap_material',' = '+args.WrapperMaterial])
+    if args.idealPolished:
+        update_param(temp_cfg,['ecal_surface = 0'])
     
     # ./CEPC_CaloTiming -c template.cfg -m run.mac -o test
     EXE=os.getcwd()+'/CV_Testbeam'
