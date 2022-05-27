@@ -120,3 +120,8 @@ count of photons detected in three SiPM detectors
 - Branch("SDCdetected_r_C", &this->SDCdetected_r_C, "SDCdetected_r_C/I")
 - Branch("SDSdetected_r_S", &this->SDSdetected_r_S, "SDSdetected_r_S/I")
 - Branch("SDSdetected_r_C", &this->SDSdetected_r_C, "SDSdetected_r_C/I")
+
+## GEANT4 Resources
+- [GEANT4 Homepage](https://geant4.web.cern.ch/)
+- [GEANT4 Tutorials/Schools](https://geant4.web.cern.ch/past-events)
+  - Example [beginner's course](https://indico.cern.ch/event/865808/timetable/)
