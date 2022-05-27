@@ -13,14 +13,14 @@ or
 make
 ```
 
-## Single event running
-For the interactive runing:
 
-View the geometry / run interactively
+## View the geometry / run interactively
+
 ```bash
 ./CV_Testbeam -c template.cfg -u Qt  
 ```
-Run the events defined in run.mac
+## Run the events defined in run.mac
+
 ```bash
 ./CV_Testbeam -c template.cfg -m run.mac -o test
 # -c config file
@@ -28,24 +28,13 @@ Run the events defined in run.mac
 # -o output file
 ```
 
-Use the runner script
+## Use the runner script
+
 ```bash
 python runner.py -b <beam> -G <E in GeV> of -M <E in MeV> -n <events> -o<outputfile>
 use standard GEANT particle names:  [e-,pi+,mu-,gamma,etc]
 example: python runner.py -bpi+ -G10 -n10 -opi_test
 ```
-
-
-## Template to access and build the examples
-```
-ls $G4EXAMPLES
-cd /tmp; mkdir geant-test; cd geant-test
-# build a specific example, eg
-cmake $G4EXAMPLES/basic/B5
-make
-./exampleB5
-```
-
 
 ## Bulk running
 use the generate_temp.sh in `./template`
@@ -125,3 +114,14 @@ count of photons detected in three SiPM detectors
 - [GEANT4 Homepage](https://geant4.web.cern.ch/)
 - [GEANT4 Tutorials/Schools](https://geant4.web.cern.ch/past-events)
   - Example [beginner's course](https://indico.cern.ch/event/865808/timetable/)
+
+
+## Template to access and build the examples
+```
+ls $G4EXAMPLES
+cd /tmp; mkdir geant-test; cd geant-test
+# build a specific example, eg
+cmake $G4EXAMPLES/basic/B5
+make
+./exampleB5
+```
