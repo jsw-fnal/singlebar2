@@ -13,6 +13,7 @@ or
 make
 ```
 
+Note: each time you open a new terminal, you will need to source the g4env.sh script to set up you environment.  The first cmake command is only needed the fist time the code is built.  For subsequent changes it is only necessary to type 'make'.
 
 ## View the geometry / run interactively
 
