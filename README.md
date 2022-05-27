@@ -16,7 +16,7 @@ make
 ## Single event running
 For the interactive runing:
 
-Check the geometry through a detector viewing window
+View the geometry / run interactively
 ```bash
 ./CV_Testbeam -c template.cfg -u Qt  
 ```
