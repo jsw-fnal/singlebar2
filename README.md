@@ -35,6 +35,32 @@ Note: each time you open a new terminal, you will need to source the g4env.sh sc
 python runner.py -b <beam> -G <E in GeV> of -M <E in MeV> -n <events> -o<outputfile>
 use standard GEANT particle names:  [e-,pi+,mu-,gamma,etc]
 example: python runner.py -bpi+ -G10 -n10 -opi_test
+
+usage: runner.py [-h] [-G GEV] [-M MEV] [-n NEVENT] [-b BEAM] [-d OUTDIR]
+                 [-o OUTPUT] [-f] [-g SIPMGAPMATERIAL] [-w WRAPPERMATERIAL]
+                 [-p]
+
+GEANT Runner Script
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -G GEV, --GeV GEV     Particle energy in GeV
+  -M MEV, --MeV MEV     Particle energy in MeV
+  -n NEVENT, --nevent NEVENT
+                        Number of events to run
+  -b BEAM, --beam BEAM  Beam particle type (eg, pi-, mu-, e-)
+  -d OUTDIR, --outdir OUTDIR
+                        Output directory name [.]
+  -o OUTPUT, --output OUTPUT
+                        Output file name[.root]
+  -f, --force           Force overwrite
+  -g SIPMGAPMATERIAL, --SiPMgapMaterial SIPMGAPMATERIAL
+                        Material between xtal face and SiPM ([1 air], 2
+                        optical grease, 5 silcone)
+  -w WRAPPERMATERIAL, --WrapperMaterial WRAPPERMATERIAL
+                        Crystal wapper material (17 Epoxy, [18 Al])
+  -p, --idealPolished   Use ideal polished surfaces
+
 ```
 
 ## Bulk running
