@@ -1,32 +1,39 @@
 #! /usr/bin/python
 
+# note python2 is assumed
 from __future__ import print_function
 import fileinput
 import argparse
 import sys
 import subprocess
 
+
+# helper function to replace parameter strings in our cfg files
 def update_param(file,tp):
     #print(file)
     for line in fileinput.input(file, inplace=True):
         # inside this loop the STDOUT will be redirected to the file
         # the comma after each print statement is needed to avoid 
         # double line breaks
-        #print line.replace("100", "helloworld"),
+        # eg print line.replace("100", "helloworld"),
         if line.startswith(tp[0]):
             print(tp[0],tp[1])
         else: print (line.strip()),
             
 # using template cfg files, make files for this run
 import tempfile, shutil, os
-#def make_tmpfiles(f_run,f_cfg):
-#    tmp_run = tempfile.mkstemp()[1]
-#    tmp_cfg = tempfile.mkstemp()[1]
-#    shutil.copy2(f_run, tmp_run)
-#    shutil.copy2(f_cfg, tmp_cfg)
-#    return tmp_run,tmp_cfg
+
+
+def check_env():
+    try:  
+        os.environ["G4INSTALL"]
+    except KeyError: 
+        print("You must source g4env.sh before running GEANT")
+        sys.exit(1)
+
 
 if __name__ == '__main__':
+    check_env()
     parser = argparse.ArgumentParser(description='GEANT Runner Script')
     parser.add_argument("-G", "--GeV", default=-1, type=float,
                         help="Particle energy in GeV"
@@ -53,12 +60,16 @@ if __name__ == '__main__':
     parser.add_argument("-g", "--SiPMgapMaterial", default="1",
                         help="Material between xtal face and SiPM ([1 air], 2 optical grease, 5 silcone)"
     )
-    # fix material 17
+    # to do: fix material 17
     parser.add_argument("-w", "--WrapperMaterial", default="18",
                         help="Crystal wapper material (17 Epoxy, [18 Al])"  
     )
     parser.add_argument("-p", "--idealPolished", default=None,
                         help="Use ideal polished surfaces",
+                        action="store_true"
+    )
+    parser.add_argument("-t", "--tee", default=False,
+                        help="tee output to logfile and terminal",
                         action="store_true"
     )
 
@@ -92,7 +103,7 @@ if __name__ == '__main__':
     print("Simulating",args.beam,"beam at",E,Eunit)
     print("Output:",outfile+".root");
     
-
+    # define the cfg and logfile names
     run_mac = args.outdir+"/"+outfile+'.runmac'
     shutil.copy2('run.mac', run_mac)
     temp_cfg = args.outdir+"/"+outfile+'.cfg'
@@ -100,7 +111,7 @@ if __name__ == '__main__':
     outfile=args.outdir+"/"+outfile
     logfile=outfile+".log"
 
-    print(run_mac,temp_cfg)
+    print('generating config files',run_mac,temp_cfg)
     update_param(run_mac,['/run/beamOn',args.nevent])
     update_param(run_mac,['/gps/energy',str(E)+" "+Eunit])
     update_param(run_mac,['/gps/particle',args.beam])
@@ -109,11 +120,14 @@ if __name__ == '__main__':
     if args.idealPolished:
         update_param(temp_cfg,['ecal_surface = 0'])
     
-    # ./CEPC_CaloTiming -c template.cfg -m run.mac -o test
     EXE=os.getcwd()+'/CV_Testbeam'
     
-    command = EXE + ' -m ' + run_mac + ' -c ' + temp_cfg + ' -o ' + outfile +  ' > ' + logfile
+    command = EXE + ' -m ' + run_mac + ' -c ' + temp_cfg + ' -o ' + outfile
+    if args.tee: command = command + '| tee '  + logfile
+    else: command = command + ' > ' + logfile
     print(command,command.split())
     # use subprocess.run for python3
-    #subprocess.call(command.split(), shell=True)
+    # subprocess.call(command.split(), shell=True)
     subprocess.call(command, shell=True)
+
+# todo: consider adding conditionals for python 2 and 3 compatibility

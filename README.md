@@ -60,6 +60,7 @@ optional arguments:
   -w WRAPPERMATERIAL, --WrapperMaterial WRAPPERMATERIAL
                         Crystal wapper material (17 Epoxy, [18 Al])
   -p, --idealPolished   Use ideal polished surfaces
+  -t, --tee             tee output to logfile and terminal
 
 ```
 
