@@ -58,49 +58,26 @@ CreateTree::CreateTree(TString name)
 
   this->GetTree()->Branch("depositedEnergyTotal", &this->depositedEnergyTotal, "depositedEnergyTotal/F");
   this->GetTree()->Branch("depositedEnergyEscapeWorld", &this->depositedEnergyEscapeWorld, "depositedEnergyEscapeWorld/F");
-  //  this->GetTree()->Branch("depositedEnergyECAL_f", &this->depositedEnergyECAL_f, "depositedEnergyECAL_f[3]/F");
-  //  this->GetTree()->Branch("depositedEnergyECAL_r", &this->depositedEnergyECAL_r, "depositedEnergyECAL_r[3]/F");
   this->GetTree()->Branch("depositedEnergyECAL_f", &this->depositedEnergyECAL_f, "depositedEnergyECAL_f/F");
   this->GetTree()->Branch("depositedEnergyECAL_r", &this->depositedEnergyECAL_r, "depositedEnergyECAL_r/F");
-  //  this->GetTree()->Branch("depositedEnergyHCALAct", &this->depositedEnergyHCALAct, "depositedEnergyHCALAct/F");
-  //  this->GetTree()->Branch("depositedEnergyHCALPas", &this->depositedEnergyHCALPas, "depositedEnergyHCALPas/F");
   this->GetTree()->Branch("depositedEnergyWorld", &this->depositedEnergyWorld, "depositedEnergyWorld/F");
-  //  this->GetTree()->Branch("depositedEnergyServices", &this->depositedEnergyServices, "depositedEnergyServices/F");
   this->GetTree()->Branch("depositedEnergyEcalGap", &this->depositedEnergyEcalGap, "depositedEnergyEcalGap/F");
   this->GetTree()->Branch("depositedEnergyEcalDet", &this->depositedEnergyEcalDet, "depositedEnergyEcalDet/F");
-  //  this->GetTree()->Branch("depositedEnergySolenoid", &this->depositedEnergySolenoid, "depositedEnergySolenoid/F");
   this->GetTree()->Branch("depositedIonEnergyTotal", &this->depositedIonEnergyTotal, "depositedIonEnergyTotal/F");
-  /*
-  this->GetTree()->Branch("depositedIonEnergyECAL_f", &this->depositedIonEnergyECAL_f, "depositedIonEnergyECAL_f[3]/F");
-  this->GetTree()->Branch("depositedIonEnergyECAL_r", &this->depositedIonEnergyECAL_r, "depositedIonEnergyECAL_r[3]/F");
-  */
   this->GetTree()->Branch("depositedIonEnergyECAL_f", &this->depositedIonEnergyECAL_f, "depositedIonEnergyECAL_f/F");
   this->GetTree()->Branch("depositedIonEnergyECAL_r", &this->depositedIonEnergyECAL_r, "depositedIonEnergyECAL_r/F");
-  //  this->GetTree()->Branch("depositedIonEnergyHCALAct", &this->depositedIonEnergyHCALAct, "depositedIonEnergyHCALAct/F");
-  //  this->GetTree()->Branch("depositedIonEnergyHCALPas", &this->depositedIonEnergyHCALPas, "depositedIonEnergyHCALPas/F");
   this->GetTree()->Branch("depositedIonEnergyWorld", &this->depositedIonEnergyWorld, "depositedIonEnergyWorld/F");
-  //  this->GetTree()->Branch("depositedIonEnergyServices", &this->depositedIonEnergyServices, "depositedIonEnergyServices/F");
   this->GetTree()->Branch("depositedIonEnergyEcalGap", &this->depositedIonEnergyEcalGap, "depositedIonEnergyEcalGap/F");
   this->GetTree()->Branch("depositedIonEnergyEcalDet", &this->depositedIonEnergyEcalDet, "depositedIonEnergyEcalDet/F");
-  //  this->GetTree()->Branch("depositedIonEnergySolenoid", &this->depositedIonEnergySolenoid, "depositedIonEnergySolenoid/F");
   this->GetTree()->Branch("depositedElecEnergyTotal", &this->depositedElecEnergyTotal, "depositedElecEnergyTotal/F");
   this->GetTree()->Branch("depositedElecEnergyECAL_f", &this->depositedElecEnergyECAL_f, "depositedElecEnergyECAL_f[3]/F");
   this->GetTree()->Branch("depositedElecEnergyECAL_r", &this->depositedElecEnergyECAL_r, "depositedElecEnergyECAL_r[3]/F");
-  //  this->GetTree()->Branch("depositedElecEnergyHCALAct", &this->depositedElecEnergyHCALAct, "depositedElecEnergyHCALAct/F");
-  //  this->GetTree()->Branch("depositedElecEnergyHCALPas", &this->depositedElecEnergyHCALPas, "depositedElecEnergyHCALPas/F");
   this->GetTree()->Branch("depositedElecEnergyWorld", &this->depositedElecEnergyWorld, "depositedElecEnergyWorld/F");
-  //  this->GetTree()->Branch("depositedElecEnergyServices", &this->depositedElecEnergyServices, "depositedElecEnergyServices/F");
   this->GetTree()->Branch("depositedElecEnergyEcalGap", &this->depositedElecEnergyEcalGap, "depositedElecEnergyEcalGap/F");
   this->GetTree()->Branch("depositedElecEnergyEcalDet", &this->depositedElecEnergyEcalDet, "depositedElecEnergyEcalDet/F");
-  //  this->GetTree()->Branch("depositedElecEnergySolenoid", &this->depositedElecEnergySolenoid, "depositedElecEnergySolenoid/F");
-
-  //single channels
-  //  this->GetTree()->Branch("Edep_Tracker_layer", &this->Edep_Tracker_layer, "Edep_Tracker_layer[6]/F");
 
 
-
-
-  //S and C in crystal bar
+  //S and C light in crystal bars
   //total generated in front and rear part
   this->GetTree()->Branch("ECAL_f_total_S", &this->ECAL_f_total_S, "ECAL_f_total_S/I");
   this->GetTree()->Branch("ECAL_f_total_C", &this->ECAL_f_total_C, "ECAL_f_total_C/I");
@@ -124,21 +101,27 @@ CreateTree::CreateTree(TString name)
   this->GetTree()->Branch("SDSdetected_r_C", &this->SDSdetected_r_C, "SDSdetected_r_C/I");
 
   //detected photons 
-  h_phot_lambda_SiPMF_f_Scin = new TH1F("h_phot_lambda_SiPMF_f_Scin", "", 1250, 0., 1250.);
-  h_phot_lambda_SiPMF_f_Ceren = new TH1F("h_phot_lambda_SiPMF_f_Ceren", "", 1250, 0., 1250.);
-  h_phot_lambda_SiPMC_r_Scin = new TH1F("h_phot_lambda_SiPMC_r_Scin", "", 1250, 0., 1250.);
-  h_phot_lambda_SiPMC_r_Ceren = new TH1F("h_phot_lambda_SiPMC_r_Ceren", "", 1250, 0., 1250.);
-  h_phot_lambda_SiPMS_r_Scin = new TH1F("h_phot_lambda_SiPMS_r_Scin", "", 1250, 0., 1250.);
-  h_phot_lambda_SiPMS_r_Ceren = new TH1F("h_phot_lambda_SiPMS_r_Ceren", "", 1250, 0., 1250.);
+  h_phot_lambda_SiPMF_f_Scin = new TH1F("h_phot_lambda_SiPMF_f_Scin", "Scint Photon lambda SiPMF;[nm]", 
+					1250, 0., 1250.);
+  h_phot_lambda_SiPMF_f_Ceren = new TH1F("h_phot_lambda_SiPMF_f_Ceren", "Cerenkov Photon lambda SiPMF;[nm]", 
+					 1250, 0., 1250.);
+  h_phot_lambda_SiPMC_r_Scin = new TH1F("h_phot_lambda_SiPMC_r_Scin", "Scint Photon lambda SiPMC;[nm]", 
+					1250, 0., 1250.);
+  h_phot_lambda_SiPMC_r_Ceren = new TH1F("h_phot_lambda_SiPMC_r_Ceren", "Cerenkov Photon lambda SiPMC;[nm]", 
+					 1250, 0., 1250.);
+  h_phot_lambda_SiPMS_r_Scin = new TH1F("h_phot_lambda_SiPMS_r_Scin", "Scint Photon lambda SiPMS;[nm]", 
+					1250, 0., 1250.);
+  h_phot_lambda_SiPMS_r_Ceren = new TH1F("h_phot_lambda_SiPMS_r_Ceren", "Cerenkov Photon lambda SiPMS;[nm]", 
+					 1250, 0., 1250.);
   //generated photons
-  h_phot_lambda_ECAL_f_produce_Scin = new TH1F("h_phot_lambda_ECAL_f_produce_Scin", "", 1250, 0., 1250.);
-  h_phot_lambda_ECAL_r_produce_Scin = new TH1F("h_phot_lambda_ECAL_r_produce_Scin", "", 1250, 0., 1250.);
-  h_phot_lambda_ECAL_f_produce_Ceren = new TH1F("h_phot_lambda_ECAL_f_produce_Ceren", "", 1250, 0., 1250.);
-  h_phot_lambda_ECAL_r_produce_Ceren = new TH1F("h_phot_lambda_ECAL_r_produce_Ceren", "", 1250, 0., 1250.);
-  h_phot_time_ECAL_f_produce_Scin = new TH1F("h_phot_time_ECAL_f_produce_Scin", "", 500, 0., 50.);
-  h_phot_time_ECAL_r_produce_Scin = new TH1F("h_phot_time_ECAL_r_produce_Scin", "", 500, 0., 50.);
-  h_phot_time_ECAL_f_produce_Ceren = new TH1F("h_phot_time_ECAL_f_produce_Ceren", "", 500, 0., 50.);
-  h_phot_time_ECAL_r_produce_Ceren = new TH1F("h_phot_time_ECAL_r_produce_Ceren", "", 500, 0., 50.);
+  h_phot_lambda_ECAL_f_produce_Scin = new TH1F("h_phot_lambda_ECAL_f_produce_Scin", "Scint Photon lambda (front);[nm]", 1250, 0., 1250.);
+  h_phot_lambda_ECAL_r_produce_Scin = new TH1F("h_phot_lambda_ECAL_r_produce_Scin", "Scint Photon lambda (rear);[nm]", 1250, 0., 1250.);
+  h_phot_lambda_ECAL_f_produce_Ceren = new TH1F("h_phot_lambda_ECAL_f_produce_Ceren", "Cerenkov Photon lambda (front);[nm]", 1250, 0., 1250.);
+  h_phot_lambda_ECAL_r_produce_Ceren = new TH1F("h_phot_lambda_ECAL_r_produce_Ceren", "Cerenkov Photon lambda (rear);[nm]", 1250, 0., 1250.);
+  h_phot_time_ECAL_f_produce_Scin = new TH1F("h_phot_time_ECAL_f_produce_Scin", "Scint Photon time (front);[ns]", 500, 0., 50.);
+  h_phot_time_ECAL_r_produce_Scin = new TH1F("h_phot_time_ECAL_r_produce_Scin", "Scint Photon time (rear);[ns]", 500, 0., 50.);
+  h_phot_time_ECAL_f_produce_Ceren = new TH1F("h_phot_time_ECAL_f_produce_Ceren", "Cerenkov Photon time (front);[ns]", 500, 0., 50.);
+  h_phot_time_ECAL_r_produce_Ceren = new TH1F("h_phot_time_ECAL_r_produce_Ceren", "Cerenkov Photon time (rear);[ns]", 500, 0., 50.);
   // detected photons
   h_phot_time_SiPMF_Ceren =  new TH1F("h_phot_time_SiPMF_Ceren", "", 500, 0., 50.);
   h_phot_time_SiPMF_Scin =  new TH1F("h_phot_time_SiPMF_Scin", "", 500, 0., 50.);
