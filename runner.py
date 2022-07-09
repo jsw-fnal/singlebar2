@@ -1,6 +1,8 @@
-#! /usr/bin/python
+#!/usr/bin/env python
 
-# note python2 is assumed
+###! /usr/bin/env python
+
+# note python2 is assumed b/c we're using CMS releases
 from __future__ import print_function
 import fileinput
 import argparse
