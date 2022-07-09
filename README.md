@@ -1,8 +1,13 @@
 # Single Bar
 
-GEANT4-based simulation of a single bar for DualReadout purpose.
+GEANT4-based simulation of a single bar or small matrix for DualReadout calorimeter studies.
 
-## Installing
+Note: this code is based on the GEANT4 version 9 releases.  The optical photon tracing and scintiallor (material) description APIs are modified in the version 10 releases.  This this code  will require several code updates for version 10 compatibility.
+
+## Requirements
+The only requirement to run this code out of the box is to have a working installation of [cvmfs](https://cernvm.cern.ch/fs/).  
+
+## Set up
 
 The following works on the UVa NAS1 server:
 ```bash
@@ -60,6 +65,8 @@ optional arguments:
   -w WRAPPERMATERIAL, --WrapperMaterial WRAPPERMATERIAL
                         Crystal wapper material (17 Epoxy, [18 Al])
   -p, --idealPolished   Use ideal polished surfaces
+  -C CRYSTALTYPE, --CrystalType CRYSTALTYPE
+                        Crystal type [14 PWO], 18 BGO
   -t, --tee             tee output to logfile and terminal
 
 ```
