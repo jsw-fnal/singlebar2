@@ -42,7 +42,7 @@ if __name__ == '__main__':
                         help="Particle energy in MeV"
     )
     parser.add_argument("-n", "--nevent", type=int, default=100,
-                        help="Number of events to run"
+                        help="Number of events to run [100]"
     )
     parser.add_argument("-b", "--beam", default="e-",
                         help="Beam particle type (eg, pi-, mu-, e-)"
@@ -67,6 +67,9 @@ if __name__ == '__main__':
     parser.add_argument("-p", "--idealPolished", default=None,
                         help="Use ideal polished surfaces",
                         action="store_true"
+    )
+    parser.add_argument("-C", "--CrystalType", default="14",
+                        help="Crystal type [14 PWO], 18 BGO"
     )
     parser.add_argument("-t", "--tee", default=False,
                         help="tee output to logfile and terminal",
@@ -117,12 +120,13 @@ if __name__ == '__main__':
     update_param(run_mac,['/gps/particle',args.beam])
     update_param(temp_cfg,['gap_material',' = '+args.SiPMgapMaterial])
     update_param(temp_cfg,['wrap_material',' = '+args.WrapperMaterial])
+    update_param(temp_cfg,['ecal_material',' = '+args.CrystalType])
     if args.idealPolished:
         update_param(temp_cfg,['ecal_surface = 0'])
     
     EXE=os.getcwd()+'/CV_Testbeam'
     
-    command = EXE + ' -m ' + run_mac + ' -c ' + temp_cfg + ' -o ' + outfile
+    command = 'time ' + EXE + ' -m ' + run_mac + ' -c ' + temp_cfg + ' -o ' + outfile
     if args.tee: command = command + '| tee '  + logfile
     else: command = command + ' > ' + logfile
     print(command,command.split())
