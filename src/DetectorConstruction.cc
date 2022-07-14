@@ -122,6 +122,7 @@ DetectorConstruction::DetectorConstruction(const string &configFileName)
 
   config.readInto(ecal_front_length, "ecal_front_length");
   config.readInto(ecal_rear_length, "ecal_rear_length");
+  config.readInto(one_layer_ecal,"one_layer_ecal");
   config.readInto(ecal_front_face, "ecal_front_face");
   config.readInto(ecal_rear_face, "ecal_rear_face");
   
@@ -194,8 +195,13 @@ G4VPhysicalVolume *DetectorConstruction::Construct()
 
   // mother volume for detector, so only one rotation is needed for the entire assembly
   double pointingAngle = ecal_incline;
+  if (ecal_incline<0) ecal_incline=0;
+  if (ecal_incline>90) ecal_incline=90;
   G4RotationMatrix *piRotCal = new G4RotationMatrix;
   piRotCal->rotateX(pointingAngle * deg);
+
+   
+
 
 #define USE_CALOPV
 #ifdef USE_CALOPV
@@ -203,8 +209,14 @@ G4VPhysicalVolume *DetectorConstruction::Construct()
   // why does defining a calo volume mess up the ray tracing?  [too much internal reflection!]  
   G4VSolid* caloS = new G4Box("caloS",expHall_x/3, expHall_y/3, expHall_z/3);
   G4LogicalVolume *caloLV = new G4LogicalVolume(caloS,WoMaterial,"caloLV");
+
+  double z0=expHall_z/10.;  // offset of calo volume from center of world 
+  // add translation to roughly center the module on the beamline
+  double lever = (ecal_front_length/2 + ecal_rear_length+z0)/2;
+  double yshift=-lever*sin(pointingAngle/180*M_PI);
+
   G4VPhysicalVolume *caloPV = 
-    new G4PVPlacement(piRotCal,	G4ThreeVector(0.0,0.0,expHall_z/10.),caloLV,
+    new G4PVPlacement(piRotCal,	G4ThreeVector(0.0,yshift,expHall_z/10.),caloLV,
 		      "caloPV",worldLV,false,0,checkOverlaps);
 #else
   // 
@@ -353,17 +365,20 @@ G4VPhysicalVolume *DetectorConstruction::Construct()
   Ta.set(0,0,0);
   G4AssemblyVolume* xtalAssembly = new G4AssemblyVolume();
   Ta.setZ(ecal_front_length * 0.5);                          // align face of front Xtal at z=0
-  xtalAssembly->AddPlacedVolume( ecalCrystalL_f, Ta, &Ra );  // origin is at center of front xtal face
-  xtalAssembly->AddPlacedVolume( ecalWrapperL_f, Ta, &Ra );
-  
+  if (!one_layer_ecal){
+    xtalAssembly->AddPlacedVolume( ecalCrystalL_f, Ta, &Ra );  // origin is at center of front xtal face
+    xtalAssembly->AddPlacedVolume( ecalWrapperL_f, Ta, &Ra );
+  }
+
   Ta.setZ(ecal_front_length + wrapper_gap*2 + wrap_thick*2 + ecal_z_gap + 0.5 * ecal_rear_length);   // rear xtal, placement relative face of front xtal
   xtalAssembly->AddPlacedVolume( ecalCrystalL_r, Ta, &Ra );
   xtalAssembly->AddPlacedVolume( ecalWrapperL_r, Ta, &Ra ); 
 
   // add front sipm assembly
-  Ta.set(0,0,-0.5*baffle_z);
-  xtalAssembly->AddPlacedAssembly(sipmAssembly_f, Ta, &Ra);
-
+  if (!one_layer_ecal){
+    Ta.set(0,0,-0.5*baffle_z);
+    xtalAssembly->AddPlacedAssembly(sipmAssembly_f, Ta, &Ra);
+  }
   // add rear sipm assembly
   Ra.rotateX(180.*deg);
   Ta.set(0,0,ecal_front_length + wrapper_gap*2 + wrap_thick*2 + ecal_z_gap + ecal_rear_length + 0.5*baffle_z);

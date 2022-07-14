@@ -125,11 +125,12 @@ private:
   G4double wrap_ref;
   G4int front_filter;
   G4int rear_filter;
-
+  G4bool one_layer_ecal;
   G4int ecal_material;
   G4int ecal_surface;
   G4double ecal_front_length;
   G4double ecal_rear_length;
+  
   G4double ecal_front_face;
   G4double ecal_rear_face;
   G4double hole_diameter;
