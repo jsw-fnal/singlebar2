@@ -629,7 +629,7 @@ void DetectorConstruction::initializeMaterials()
 
   WrapMaterial = NULL;
   if (wrap_material == 1)
-    WrapMaterial = MyMaterials::Quartz();
+    WrapMaterial = MyMaterials::Air();
   else if (wrap_material == 2)
     WrapMaterial = MyMaterials::SiO2();
   else if (wrap_material == 3)
