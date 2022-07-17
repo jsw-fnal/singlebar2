@@ -114,6 +114,7 @@ private:
   G4double services_thick;
 
   G4double ecal_incline;
+  G4double ecal_yshift;
   G4double ecal_xy_gap;
   G4double ecal_z_gap;
 

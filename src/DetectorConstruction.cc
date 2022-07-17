@@ -112,6 +112,7 @@ DetectorConstruction::DetectorConstruction(const string &configFileName)
   config.readInto(checkOverlaps, "checkOverlaps");
   config.readInto(world_material, "world_material");
   config.readInto(ecal_incline, "ecal_incline");
+  config.readInto(ecal_yshift, "ecal_yshift");
 
   config.readInto(ecal_xy_gap, "ecal_xy_gap");
   config.readInto(ecal_z_gap, "ecal_z_gap");
@@ -214,6 +215,7 @@ G4VPhysicalVolume *DetectorConstruction::Construct()
   // add translation to roughly center the module on the beamline
   double lever = (ecal_front_length/2 + ecal_rear_length+z0)/2;
   double yshift=-lever*sin(pointingAngle/180*M_PI);
+  yshift += ecal_yshift;  // additional shift to move detector off center of beam line
 
   G4VPhysicalVolume *caloPV = 
     new G4PVPlacement(piRotCal,	G4ThreeVector(0.0,yshift,expHall_z/10.),caloLV,
