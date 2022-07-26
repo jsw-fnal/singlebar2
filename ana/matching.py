@@ -8,7 +8,7 @@ import ROOT as r
 import os, sys
 r.gROOT.SetBatch(True)
 
-GEANTDIR=os.environ['HOME']+'/single_bar2'
+GEANTDIR='/store/hirosky/GeantFiles'
 PWOAIR=GEANTDIR+'/PWO/air_gap/el_10GeV.root'
 PWOOG=GEANTDIR+'/PWO/og_gap/el_10GeV.root'
 PWOSI=GEANTDIR+'/PWO/si_gap/el_10GeV.root'

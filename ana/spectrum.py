@@ -29,8 +29,8 @@ hBGO_C.SetLineColor(r.kMagenta)
 hPWO_S.SetLineColor(r.kBlue)
 hBGO_S.SetLineColor(r.kBlue)
 
-hPWO_S.SetTitle("Optial photon spectrum for 10 GeV muon in PWO;lambda [nm];Arbitrary units")
-hBGO_S.SetTitle("Optial photon spectrum for 10 GeV muon in BGO;lambda [nm];Arbitrary units")
+hPWO_S.SetTitle("Optical photon spectrum for 10 GeV muon in PWO;lambda [nm];Arbitrary units")
+hBGO_S.SetTitle("Optical photon spectrum for 10 GeV muon in BGO;lambda [nm];Arbitrary units")
 
 
 r.gStyle.SetOptStat(0)
@@ -39,16 +39,21 @@ tc=r.TCanvas()
 tc.Divide(1,2)
 pad=tc.cd(1)
 hPWO_S.Draw('c')
-hPWO_C.Draw('samec')
+hPWO_C.Draw('same,c')
 pad.BuildLegend()
 
 pad=tc.cd(2)
 hBGO_S.Draw('c')
-hBGO_C.Draw('samec')
+hBGO_C.Draw('same,c')
 pad.BuildLegend()
 
 tc.Print("spectrum.pdf")
 
+
 print('Hit return to exit')
 sys.stdout.flush() 
-raw_input('')
+if sys.version_info.major==2:
+    raw_input('')
+else:
+    input()
+
