@@ -66,6 +66,12 @@ if __name__ == '__main__':
     parser.add_argument("-w", "--WrapperMaterial", default="18",
                         help="Crystal wapper material (17 Epoxy, [18 Al])"  
     )
+    parser.add_argument("-a", "--angle", default="0",
+                        help="Angle of bar [0]"  
+    )
+    parser.add_argument("-y", "--yshift", default="0",
+                        help="y-shift of bar [0]"  
+    )
     parser.add_argument("-p", "--idealPolished", default=None,
                         help="Use ideal polished surfaces",
                         action="store_true"
@@ -123,6 +129,8 @@ if __name__ == '__main__':
     update_param(temp_cfg,['gap_material',' = '+args.SiPMgapMaterial])
     update_param(temp_cfg,['wrap_material',' = '+args.WrapperMaterial])
     update_param(temp_cfg,['ecal_material',' = '+args.CrystalType])
+    update_param(temp_cfg,['ecal_incline',' = '+args.angle])
+    update_param(temp_cfg,['ecal_yshift',' = '+args.yshift])
     if args.idealPolished:
         update_param(temp_cfg,['ecal_surface = 0'])
     

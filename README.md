@@ -64,6 +64,10 @@ optional arguments:
                         optical grease, 5 silcone)
   -w WRAPPERMATERIAL, --WrapperMaterial WRAPPERMATERIAL
                         Crystal wapper material (17 Epoxy, [18 Al])
+  -a ANGLE, --angle ANGLE
+                        Angle of bar [0]
+  -y YSHIFT, --yshift YSHIFT
+                        y-shift of bar [0]
   -p, --idealPolished   Use ideal polished surfaces
   -C CRYSTALTYPE, --CrystalType CRYSTALTYPE
                         Crystal type [14 PWO], 18 BGO
