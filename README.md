@@ -164,3 +164,10 @@ cmake $G4EXAMPLES/basic/B5
 make
 ./exampleB5
 ```
+
+##How to fix your git
+To remove local changes and reset to the remote
+```
+git fetch origin
+git reset --hard origin/main
+```
