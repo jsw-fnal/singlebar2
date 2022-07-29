@@ -165,7 +165,7 @@ make
 ./exampleB5
 ```
 
-##How to fix your git
+## How to fix your git
 To remove local changes and reset to the remote
 ```
 git fetch origin
