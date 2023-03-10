@@ -206,7 +206,7 @@ G4VPhysicalVolume *DetectorConstruction::Construct()
 
 #define USE_CALOPV
 #ifdef USE_CALOPV
-  cout << "Setting Xtal modules in CALO volume" << endl;
+  G4cout << "Setting Xtal modules in CALO volume" << G4endl;
   // why does defining a calo volume mess up the ray tracing?  [too much internal reflection!]  
   G4VSolid* caloS = new G4Box("caloS",expHall_x/3, expHall_y/3, expHall_z/3);
   G4LogicalVolume *caloLV = new G4LogicalVolume(caloS,WoMaterial,"caloLV");
@@ -220,6 +220,7 @@ G4VPhysicalVolume *DetectorConstruction::Construct()
   G4VPhysicalVolume *caloPV = 
     new G4PVPlacement(piRotCal,	G4ThreeVector(0.0,yshift,expHall_z/10.),caloLV,
 		      "caloPV",worldLV,false,0,checkOverlaps);
+  G4cout << "Calo volume placed at " << G4ThreeVector(0.0,yshift,z0) << G4endl;
 #else
   // 
   G4LogicalVolume *caloLV = worldLV;
@@ -372,7 +373,9 @@ G4VPhysicalVolume *DetectorConstruction::Construct()
     xtalAssembly->AddPlacedVolume( ecalWrapperL_f, Ta, &Ra );
   }
 
-  Ta.setZ(ecal_front_length + wrapper_gap*2 + wrap_thick*2 + ecal_z_gap + 0.5 * ecal_rear_length);   // rear xtal, placement relative face of front xtal
+  G4double rear_xtal_offset=ecal_front_length + wrapper_gap*2 + wrap_thick*2 + ecal_z_gap + 0.5 * ecal_rear_length;
+  G4cout << "Front face of rear crystal placement at z = " << rear_xtal_offset-0.5 * ecal_rear_length + z0 << " mm" << G4endl;
+  Ta.setZ(rear_xtal_offset);   // rear xtal, placement relative face of front xtal
   xtalAssembly->AddPlacedVolume( ecalCrystalL_r, Ta, &Ra );
   xtalAssembly->AddPlacedVolume( ecalWrapperL_r, Ta, &Ra ); 
 
