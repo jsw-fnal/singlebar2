@@ -101,32 +101,38 @@ Misc to do items
 
 namespace {
 
+using Layer_t = std::tuple<G4double, std::vector<G4LogicalVolume*>, std::vector<G4AssemblyVolume*>>;
+
 void layeredAssembly(G4AssemblyVolume* assemblyVolume,
-	const std::vector<std::vector<G4LogicalVolume*>>& layers,
-	const std::vector<G4double>& layer_sizes,
+	const std::vector<Layer_t>& layers,
 	G4ThreeVector offset,
-	G4RotationMatrix& Ra,
+	G4RotationMatrix Ra,
 	bool flip_endcap = false) {
 
 	const G4ThreeVector z{0,0,1};
 
-	// G4double total_size = std::accumulate(layer_sizes.begin(), layer_sizes.end(), 0.0);
-	// offset += 0.5 * total_size * z;
-
-	for (int i = 0; i < layers.size(); i++) {
+	for (unsigned int i = 0; i < layers.size(); i++) {
 		if (i == 0) {
-			offset += 0.5 * layer_sizes[i] * z;
+			offset += 0.5 * std::get<0>(layers[i]) * z;
 		} else {
-			offset += 0.5 * (layer_sizes[i] + layer_sizes[i-1]) * z;
+			offset += 0.5 * (std::get<0>(layers[i]) + std::get<0>(layers[i-1])) * z;
 		}
 
-		for (G4LogicalVolume* v : layers[i]) {
+		if (i == layers.size() - 1 && flip_endcap) {
+			Ra.rotateX(180. * deg);
+		}
+
+		for (G4LogicalVolume* v : std::get<1>(layers[i])) {
 			assemblyVolume->AddPlacedVolume(v, offset, &Ra);
+		}
+
+		for (G4AssemblyVolume* v : std::get<2>(layers[i])) {
+			assemblyVolume->AddPlacedAssembly(v, offset, &Ra);
 		}
 	}
 }
 
-}
+} // namespace ::
 
 
 DetectorConstruction::DetectorConstruction(const string &configFileName)
@@ -350,8 +356,10 @@ G4VPhysicalVolume *DetectorConstruction::Construct()
   auto AssembleSipm = [&] (G4AssemblyVolume* sipmAssembly, G4LogicalVolume* sipmWindowL, G4ThreeVector offset) {
 	  layeredAssembly(
 	  	sipmAssembly,
-		{ {matchBoxL}, {coatingL}, {sipmWindowL, sipmBorderL}, {sipmBaseL} },
-	  	{ -sipm_gap, -sipm_surf_z, -sipm_window_l, -base_l},
+		{ {-sipm_gap     , {matchBoxL}, {}},
+		  {-sipm_surf_z  , {coatingL}, {}},
+		  {-sipm_window_l, {sipmWindowL, sipmBorderL}, {}},
+		  {-base_l       , {sipmBaseL}, {}} },
 		offset + G4ThreeVector{0, 0, 0.5 * baffle_z},
 		Ra);
   	};
@@ -389,6 +397,7 @@ G4VPhysicalVolume *DetectorConstruction::Construct()
   // crystal + wrapper assemblies
   Ta.set(0,0,0);
   G4AssemblyVolume* xtalAssembly = new G4AssemblyVolume();
+  /*
   Ta.setZ(ecal_front_length * 0.5);                          // align face of front Xtal at z=0
   if (!one_layer_ecal){
     xtalAssembly->AddPlacedVolume( ecalCrystalL_f, Ta, &Ra );  // origin is at center of front xtal face
@@ -408,6 +417,18 @@ G4VPhysicalVolume *DetectorConstruction::Construct()
   Ra.rotateX(180.*deg);
   Ta.set(0,0,ecal_front_length + wrapper_gap*2 + wrap_thick*2 + ecal_z_gap + ecal_rear_length + 0.5*baffle_z);
   xtalAssembly->AddPlacedAssembly(sipmAssembly_r, Ta, &Ra);
+  */
+
+  layeredAssembly(
+  	xtalAssembly,
+  	{ { baffle_z,                                         {}, {sipmAssembly_f}},
+	  { ecal_front_length,                                {ecalCrystalL_f, ecalWrapperL_f}, {} },
+	  { 2.0 * (wrapper_gap + wrap_thick) + ecal_z_gap,    {}, {} },
+	  { ecal_rear_length,                                 {ecalCrystalL_r, ecalWrapperL_r}, {} },
+	  { baffle_z,                                         {}, {sipmAssembly_r} }
+	},
+	G4ThreeVector{0, 0, -baffle_z},
+	Ra);
   
   // set surface properties
   G4LogicalSkinSurface *crystalSurface_f = new G4LogicalSkinSurface("crystalSurface_f", ecalCrystalL_f, fECALSurface);
@@ -425,7 +446,7 @@ G4VPhysicalVolume *DetectorConstruction::Construct()
 
   // module placement in caloLV
   Ta.set(0,0,0);
-  Ra.rotateX(-180.*deg);  // undo rotation
+  // Ra.rotateX(-180.*deg);  // undo rotation
   xtalAssembly->MakeImprint(caloLV, Ta, &Ra, 0, checkOverlaps);
 
   if (narray>1) {
