@@ -317,9 +317,12 @@ G4VPhysicalVolume *DetectorConstruction::Construct()
   G4VSolid *ecalWrapper_shellS_r = new G4SubtractionSolid("ecalWrapper_shellS_r", ecalWrapper_outerS_r, ecalWrapper_innerS_r);  // 6 sided wrapper
 
   // shift outer wrapper block to cut off front face of wapper to xtal surface
-  G4IntersectionSolid *ecalWrapperS_r = new G4IntersectionSolid("ecalWrapperS_r",ecalWrapper_shellS_r,ecalWrapper_outerS_r,
-								NULL,G4ThreeVector(0,0,-wrapper_gap -wrap_thick));
-  
+  G4IntersectionSolid *ecalWrapperS_r1 = new G4IntersectionSolid("ecalWrapperS_r1",ecalWrapper_shellS_r,ecalWrapper_outerS_r,
+								NULL,{0,0,-(wrapper_gap + wrap_thick)});
+  // also cut off back face
+  G4IntersectionSolid *ecalWrapperS_r = new G4IntersectionSolid("ecalWrapperS_r", ecalWrapperS_r1, ecalWrapper_outerS_r,
+  								NULL,{0,0,wrapper_gap + wrap_thick});
+
   G4LogicalVolume *ecalWrapperL_r = new G4LogicalVolume(ecalWrapperS_r, WrapMaterial, "ecalWrapperL_r"); 
   
 
@@ -334,6 +337,7 @@ G4VPhysicalVolume *DetectorConstruction::Construct()
   G4LogicalVolume *sipmSWindowL = new G4LogicalVolume(sipmWindowS, WindowMaterial, "sipmSWindowL", 0, 0, 0);
   G4LogicalVolume *sipmCWindowL = new G4LogicalVolume(sipmWindowS, WindowMaterial, "sipmCWindowL", 0, 0, 0);
   G4LogicalVolume *sipmFWindowL = new G4LogicalVolume(sipmWindowS, WindowMaterial, "sipmFWindowL", 0, 0, 0);
+  G4LogicalVolume *sipmRWindowL = new G4LogicalVolume(sipmWindowS, WindowMaterial, "sipmRWindowL", 0, 0, 0);
 
   G4LogicalVolume *sipmBorderL = new G4LogicalVolume(sipmBorderS, WindowMaterial, "sipmBorderL", 0, 0, 0);
   G4LogicalVolume *sipmBaseL = new G4LogicalVolume(sipmBaseS, DeMaterial, "sipmBaseL", 0, 0, 0);
@@ -365,7 +369,6 @@ G4VPhysicalVolume *DetectorConstruction::Construct()
   	};
 
   // SiPM assembly for front, including baffle
-  Ta.set(0,0,0);
   G4AssemblyVolume* sipmAssembly_f = new G4AssemblyVolume();
   sipmAssembly_f->AddPlacedVolume(baffleL_f, Ta, &Ra );        // origin of assembly is at center of the baffle
   AssembleSipm(sipmAssembly_f, sipmFWindowL, {0,0,0});
@@ -384,51 +387,32 @@ G4VPhysicalVolume *DetectorConstruction::Construct()
   Ta.set(0,0,0);
   G4AssemblyVolume* sipmAssembly_r = new G4AssemblyVolume();
   sipmAssembly_r->AddPlacedVolume(baffleL_r, Ta, &Ra );       // origin of assembly is at center of the baffle
-
-  // SiPM back S-type
   AssembleSipm(sipmAssembly_r, sipmSWindowL, {0, ecal_rear_face/4.0, 0});
-
-  // SiPM back C-type
   AssembleSipm(sipmAssembly_r, sipmCWindowL, {0, -ecal_rear_face/4.0, 0});
+
+  // SiPM R assembly - copy the construction of front SiPM
+  G4LogicalVolume *baffleL_R = new G4LogicalVolume(baffle_cutoutS_f, WrapMaterial, "baffelL_R");
+  G4AssemblyVolume* sipmAssembly_R = new G4AssemblyVolume();
+  sipmAssembly_R->AddPlacedVolume(baffleL_R, Ta, &Ra);
+  AssembleSipm(sipmAssembly_R, sipmRWindowL, {0, 0, 0});
 
 
   /////// module assembly ///////
 
   // crystal + wrapper assemblies
-  Ta.set(0,0,0);
   G4AssemblyVolume* xtalAssembly = new G4AssemblyVolume();
-  /*
-  Ta.setZ(ecal_front_length * 0.5);                          // align face of front Xtal at z=0
-  if (!one_layer_ecal){
-    xtalAssembly->AddPlacedVolume( ecalCrystalL_f, Ta, &Ra );  // origin is at center of front xtal face
-    xtalAssembly->AddPlacedVolume( ecalWrapperL_f, Ta, &Ra );
-  }
-
-  Ta.setZ(ecal_front_length + wrapper_gap*2 + wrap_thick*2 + ecal_z_gap + 0.5 * ecal_rear_length);   // rear xtal, placement relative face of front xtal
-  xtalAssembly->AddPlacedVolume( ecalCrystalL_r, Ta, &Ra );
-  xtalAssembly->AddPlacedVolume( ecalWrapperL_r, Ta, &Ra ); 
-
-  // add front sipm assembly
-  if (!one_layer_ecal){
-    Ta.set(0,0,-0.5*baffle_z);
-    xtalAssembly->AddPlacedAssembly(sipmAssembly_f, Ta, &Ra);
-  }
-  // add rear sipm assembly
-  Ra.rotateX(180.*deg);
-  Ta.set(0,0,ecal_front_length + wrapper_gap*2 + wrap_thick*2 + ecal_z_gap + ecal_rear_length + 0.5*baffle_z);
-  xtalAssembly->AddPlacedAssembly(sipmAssembly_r, Ta, &Ra);
-  */
-
   layeredAssembly(
   	xtalAssembly,
-  	{ { baffle_z,                                         {}, {sipmAssembly_f}},
-	  { ecal_front_length,                                {ecalCrystalL_f, ecalWrapperL_f}, {} },
-	  { 2.0 * (wrapper_gap + wrap_thick) + ecal_z_gap,    {}, {} },
-	  { ecal_rear_length,                                 {ecalCrystalL_r, ecalWrapperL_r}, {} },
-	  { baffle_z,                                         {}, {sipmAssembly_r} }
+  	{ { baffle_z,                               {}, {sipmAssembly_f} },
+	  { ecal_front_length,                      {ecalCrystalL_f, ecalWrapperL_f}, {} },
+	  { wrapper_gap + wrap_thick + ecal_z_gap,  {}, {} },
+	  { baffle_z,                               {}, {sipmAssembly_R} },
+	  { ecal_rear_length,                       {ecalCrystalL_r, ecalWrapperL_r}, {} },
+	  { baffle_z,                               {}, {sipmAssembly_r} }
 	},
 	G4ThreeVector{0, 0, -baffle_z},
-	Ra);
+	Ra,
+	true);
   
   // set surface properties
   G4LogicalSkinSurface *crystalSurface_f = new G4LogicalSkinSurface("crystalSurface_f", ecalCrystalL_f, fECALSurface);
@@ -446,7 +430,6 @@ G4VPhysicalVolume *DetectorConstruction::Construct()
 
   // module placement in caloLV
   Ta.set(0,0,0);
-  // Ra.rotateX(-180.*deg);  // undo rotation
   xtalAssembly->MakeImprint(caloLV, Ta, &Ra, 0, checkOverlaps);
 
   if (narray>1) {
