@@ -49,7 +49,7 @@
 #include "TString.h"
 #include "TTree.h"
 #include "TRandom3.h"
-//#include "TCint.h"
+
 
 #include "G4RunManager.hh"
 #include "G4UImanager.hh"
@@ -57,7 +57,6 @@
 #include "G4EmUserPhysics.hh"
 #include "G4EmStandardPhysics.hh"
 #include "G4VModularPhysicsList.hh"
-//#include "G4StepLimiterBuilder.hh"
 
 
 #include "QGSP_BERT.hh"
@@ -91,34 +90,11 @@ int main(int argc,char** argv)
 {
   //  gInterpreter -> GenerateDictionary("vector<float>","vector");
 
-  string file;
-  string filename;
+  TString file;
+  TString filename;
   TFile* outfile = NULL;
   bool UI_on=0;
   bool MAKE_ROOTFILE=0;
-  /*  
-  if (argc != 3 && argc != 2)
-  {
-    cout << "Syntax for exec: crystal <configuration file> <output file>" << endl; 
-    cout << "Syntax for viz:  crystal <configuration file>" << endl; 
-    return 0;
-  }
-  if(argc == 3) 
-  {
-    cout << "Starting exec mode..." << endl; 
-    file = argv[2];
-    filename = file + ".root";
-    G4cout << "Writing data to file '" << filename << "' ..." << G4endl;
-    
-    outfile = new TFile((TString)filename,"RECREATE");
-    outfile -> cd();
-  }
-    if (argc == 2)
-  {
-    cout<<"Starting viz mode..."<<endl; 
-  }
-  */
-
 
   G4String macro;
   G4String session;
@@ -130,7 +106,7 @@ int main(int argc,char** argv)
     else if ( G4String(argv[i]) == "-o" ) {
       MAKE_ROOTFILE=1;
       file = argv[i+1];
-      filename = file + ".root";
+      if ( !filename.EndsWith(".root") ) filename = file + ".root";
       G4cout << "Writing data to file '" << filename << "' ..." << G4endl;
           outfile = new TFile((TString)filename,"RECREATE");
       outfile -> cd();
