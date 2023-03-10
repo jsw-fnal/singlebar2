@@ -99,6 +99,36 @@ Misc to do items
 - put a SD in the gap infrom of SIPM to count optical photons making it out of the xtal
 **********************************************************/
 
+namespace {
+
+void layeredAssembly(G4AssemblyVolume* assemblyVolume,
+	const std::vector<std::vector<G4LogicalVolume*>>& layers,
+	const std::vector<G4double>& layer_sizes,
+	G4ThreeVector offset,
+	G4RotationMatrix& Ra,
+	bool flip_endcap = false) {
+
+	const G4ThreeVector z{0,0,1};
+
+	// G4double total_size = std::accumulate(layer_sizes.begin(), layer_sizes.end(), 0.0);
+	// offset += 0.5 * total_size * z;
+
+	for (int i = 0; i < layers.size(); i++) {
+		if (i == 0) {
+			offset += 0.5 * layer_sizes[i] * z;
+		} else {
+			offset += 0.5 * (layer_sizes[i] + layer_sizes[i-1]) * z;
+		}
+
+		for (G4LogicalVolume* v : layers[i]) {
+			assemblyVolume->AddPlacedVolume(v, offset, &Ra);
+		}
+	}
+}
+
+}
+
+
 DetectorConstruction::DetectorConstruction(const string &configFileName)
 {
   //---------------------------------------
@@ -134,7 +164,7 @@ DetectorConstruction::DetectorConstruction(const string &configFileName)
   config.readInto(sipm_window_l,"sipm_window_l");
   config.readInto(sipm_active_x,"sipm_active_x");
   config.readInto(sipm_active_y,"sipm_active_y");
-  config.readInto(sipm_gap,"sipm_gap");
+  config.readInto(sipm_surf_z,"sipm_surf_z");
 
 
   config.readInto(wrap_material, "wrap_material");
@@ -302,8 +332,12 @@ G4VPhysicalVolume *DetectorConstruction::Construct()
   G4LogicalVolume *sipmBorderL = new G4LogicalVolume(sipmBorderS, WindowMaterial, "sipmBorderL", 0, 0, 0);
   G4LogicalVolume *sipmBaseL = new G4LogicalVolume(sipmBaseS, DeMaterial, "sipmBaseL", 0, 0, 0);
 
+  // SiPM coating
+  G4Box *coatingS = new G4Box("coatingS", 0.5 * sipm_size_x, 0.5 * sipm_size_y, 0.5 * sipm_surf_z);
+  G4LogicalVolume *coatingL = new G4LogicalVolume(coatingS, SurfaceMaterial, "coatingL", 0, 0, 0);
+
   // baffle front
-  G4double baffle_z = wrapper_gap + sipm_size_z;
+  G4double baffle_z = sipm_gap + sipm_size_z + sipm_surf_z;
   G4Box *baffleS_f = new G4Box("baffleS_f", 0.5 * ecal_front_face + wrapper_gap + wrap_thick, 
 					    0.5 * ecal_front_face + wrapper_gap + wrap_thick, 
 			                    0.5 * (sipm_gap + sipm_size_z));
@@ -313,18 +347,20 @@ G4VPhysicalVolume *DetectorConstruction::Construct()
   G4Box *matchBoxS =  new G4Box("matchBoxS",0.5 * sipm_size_x, 0.5 * sipm_size_y, 0.5*sipm_gap);
   G4LogicalVolume *matchBoxL = new G4LogicalVolume(matchBoxS, GaMaterial, "matchBoxL");          // matching material between SiPM and Xtal
 
+  auto AssembleSipm = [&] (G4AssemblyVolume* sipmAssembly, G4LogicalVolume* sipmWindowL, G4ThreeVector offset) {
+	  layeredAssembly(
+	  	sipmAssembly,
+		{ {matchBoxL}, {coatingL}, {sipmWindowL, sipmBorderL}, {sipmBaseL} },
+	  	{ -sipm_gap, -sipm_surf_z, -sipm_window_l, -base_l},
+		offset + G4ThreeVector{0, 0, 0.5 * baffle_z},
+		Ra);
+  	};
+
   // SiPM assembly for front, including baffle
   Ta.set(0,0,0);
   G4AssemblyVolume* sipmAssembly_f = new G4AssemblyVolume();
   sipmAssembly_f->AddPlacedVolume(baffleL_f, Ta, &Ra );        // origin of assembly is at center of the baffle
-  Ta.setZ( 0.5*baffle_z - 0.5*sipm_gap); 
-  // build SiPM by layers              
-  sipmAssembly_f->AddPlacedVolume(matchBoxL, Ta, &Ra );       // place the matching/sipm_gap material volume 
-  Ta.setZ( 0.5*baffle_z - 0.5*sipm_window_l - sipm_gap);       
-  sipmAssembly_f->AddPlacedVolume( sipmFWindowL, Ta, &Ra );    // window set back by small gap from xtal/baffle surface
-  sipmAssembly_f->AddPlacedVolume( sipmBorderL, Ta, &Ra );   
-  Ta.setZ( -0.5*baffle_z + 0.5*base_l );                       // measured from back face of baffle
-  sipmAssembly_f->AddPlacedVolume( sipmBaseL, Ta, &Ra );
+  AssembleSipm(sipmAssembly_f, sipmFWindowL, {0,0,0});
 
   // baffle rear 
   G4Box *baffleS_r = new G4Box("baffleS_r", 0.5 * ecal_rear_face + wrapper_gap + wrap_thick, 
@@ -342,23 +378,10 @@ G4VPhysicalVolume *DetectorConstruction::Construct()
   sipmAssembly_r->AddPlacedVolume(baffleL_r, Ta, &Ra );       // origin of assembly is at center of the baffle
 
   // SiPM back S-type
-  Ta.set(0, ecal_rear_face/4.0, 0.5*baffle_z - 0.5*sipm_gap);
-  sipmAssembly_r->AddPlacedVolume(matchBoxL, Ta, &Ra ); 
-  Ta.set(0, ecal_rear_face/4.0, 0.5*baffle_z - 0.5*sipm_window_l - sipm_gap); 
-  sipmAssembly_r->AddPlacedVolume( sipmSWindowL, Ta, &Ra );
-  sipmAssembly_r->AddPlacedVolume( sipmBorderL, Ta, &Ra );
-  Ta.set(0, ecal_rear_face/4.0, -0.5*baffle_z + 0.5*base_l );                      // measured from back face of baffle
-  sipmAssembly_r->AddPlacedVolume( sipmBaseL, Ta, &Ra );
+  AssembleSipm(sipmAssembly_r, sipmSWindowL, {0, ecal_rear_face/4.0, 0});
 
   // SiPM back C-type
-  Ta.set(0, -ecal_rear_face/4.0, 0.5*baffle_z - 0.5*sipm_gap); 
-  sipmAssembly_r->AddPlacedVolume(matchBoxL, Ta, &Ra ); 
-  Ta.set(0, -ecal_rear_face/4.0, 0.5*baffle_z - 0.5*sipm_window_l - sipm_gap); 
-  sipmAssembly_r->AddPlacedVolume( sipmCWindowL, Ta, &Ra );
-  sipmAssembly_r->AddPlacedVolume( sipmBorderL, Ta, &Ra );
-  Ta.set(0, -ecal_rear_face/4.0, -0.5*baffle_z + 0.5*base_l );                      // measured from back face of baffle
-  sipmAssembly_r->AddPlacedVolume( sipmBaseL, Ta, &Ra );
-
+  AssembleSipm(sipmAssembly_r, sipmCWindowL, {0, -ecal_rear_face/4.0, 0});
 
 
   /////// module assembly ///////
@@ -676,6 +699,7 @@ void DetectorConstruction::initializeMaterials()
   WindowMaterial = MyMaterials::SiO2();     // to do: allow setting
   PMTGapMaterial = MyMaterials::silicone();
   DeMaterial = MyMaterials::Ceramic();
+  SurfaceMaterial = MyMaterials::SiO2();
 
   GaMaterial = NULL;
   if (gap_material == 1)
@@ -882,6 +906,6 @@ void DetectorConstruction::initializeSurface()
   return;
 }
 
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
 
 //---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
