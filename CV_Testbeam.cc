@@ -89,8 +89,8 @@ long int CreateSeed();
 int main(int argc,char** argv)
 {
   //  gInterpreter -> GenerateDictionary("vector<float>","vector");
+  G4cout << "Start of " << argv[0] << G4endl;
 
-  TString file;
   TString filename;
   TFile* outfile = NULL;
   bool UI_on=0;
@@ -105,10 +105,10 @@ int main(int argc,char** argv)
     else if ( G4String(argv[i]) == "-c" ) dconfig = argv[i+1];
     else if ( G4String(argv[i]) == "-o" ) {
       MAKE_ROOTFILE=1;
-      file = argv[i+1];
-      if ( !filename.EndsWith(".root") ) filename = file + ".root";
+      filename = TString(argv[i+1]);
+      if ( ! filename.EndsWith(".root") ) filename += ".root";
       G4cout << "Writing data to file '" << filename << "' ..." << G4endl;
-          outfile = new TFile((TString)filename,"RECREATE");
+          outfile = new TFile(filename,"RECREATE");
       outfile -> cd();
          }
     else {
