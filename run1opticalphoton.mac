@@ -1,0 +1,83 @@
+#/tracking/verbose 1
+
+# Macro file for the
+# initialization of G4GeneralParticleSource
+
+# beam
+#/gps/energy 1 GeV
+#/gps/particle mu-
+#/gps/particle gamma
+#/gps/particle pi-
+#/gps/particle e-
+
+
+
+# 300nm = 4.13eV; 350nm=3.54eV; 420nm=2.95eV; 500nm=2.48eV; 600nm=2.06eV; 700nm=1.77eV; 900nm=1.38eV; 1000nm=1.24eV
+# optical photons
+/gps/particle opticalphoton
+
+# for mono energetic optical photons
+# /gps/ene/type Mono
+# /gps/energy  2.95 eV
+## /gps/polarization 1 0 0
+
+# energies via a histogram
+/gps/source/intensity 1.0
+
+# totally failing to get this energy histogram working in G4
+# documentaion is garbage!
+#/gps/ene/type User
+#/gps/hist/type energy
+#/gps/hist/point 1.24 0.
+#/gps/hist/point 1.38 0.1
+#/gps/hist/point 1.77 0.1
+#/gps/hist/point 2.06 0.3
+#/gps/hist/point 2.48 1.0
+#/gps/hist/point 2.95 1.0
+#/gps/hist/point 3.45 0.3
+#/gps/hist/point 4.13 0.0
+
+#/gps/ene/type Arb
+#/gps/hist/type arb
+#/gps/ene/min 1.24 eV
+#/gps/ene/max 4.13 eV
+#/gps/hist/point 1.24 1.
+#/gps/hist/point 2.0  0.5
+#/gps/hist/point 4.13 1.
+#/gps/hist/inter Lin	
+
+#/gps/ene/type Gauss
+#/gps/ene/mono 2.7 eV
+#/gps/ene/sigma 0.43 eV
+
+#/gps/ene/type Lin
+#/gps/ene/min 1.24 eV
+#/gps/ene/max 4.13 eV
+#/gps/ene/gradient 0.
+#/gps/ene/intercept 1.
+
+
+/gps/ene/type Pow
+/gps/ene/min 1.24 eV
+/gps/ene/max 4.13 eV
+/gps/ene/alpha -2.    # why -2 and not -1 to get flat spectrum in lambda???
+
+/gps/pos/type Volume
+/gps/pos/shape Para
+/gps/pos/halfx 8 mm
+/gps/pos/halfy 8 mm
+/gps/pos/halfz 90 mm
+
+/gps/pos/centre 0  0 307.5 mm
+#/gps/direction 0 1 1
+/gps/ang/type iso
+
+
+# radioactive source
+# 511 for Sodium, 662 for Cesium, 160 for Co57, 1250 for Co60
+#/gps/energy 160 keV    
+#/gps/particle gamma
+#/gps/ang/type iso
+
+#/gps/number 1
+/run/beamOn 1

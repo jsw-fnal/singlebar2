@@ -7,7 +7,7 @@ CreateTree *CreateTree::fInstance = NULL;
 
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
-CreateTree::CreateTree(TString name)
+CreateTree::CreateTree(const TString name)
 {
   if (fInstance)
   {
@@ -18,39 +18,22 @@ CreateTree::CreateTree(TString name)
   this->fname = name;
   this->ftree = new TTree(name, name);
 
+  //---------------------------------------
+  //------------- Parameters --------------
+  //---------------------------------------
+
+
   this->GetTree()->Branch("Event", &this->Event, "Event/I");
-  /*
-  this->GetTree()->Branch("inputTrackerX0", &this->inputTrackerX0, "inputTrackerX0/F");
-  this->GetTree()->Branch("inputServiceAlmm", &this->inputServiceAlmm, "inputServiceAlmm/F");
-  this->GetTree()->Branch("inputTimingThick", &this->inputTimingThick, "inputTimingThick/F");
-  this->GetTree()->Branch("inputE1Thick", &this->inputE1Thick, "inputE1Thick/F");
-  this->GetTree()->Branch("inputE2Thick", &this->inputE2Thick, "inputE2Thick/F");
-  this->GetTree()->Branch("inputE1Width", &this->inputE1Width, "inputE1Width/F");
-  this->GetTree()->Branch("inputTimingECAL_dist", &this->inputTimingECAL_dist, "inputTimingECAL_dist/F");
-  */
+
   inputInitialPosition = new vector<float>(3, 0.);
   inputMomentum = new vector<float>(4, 0.);
-  /*
-  primaryPosT1 = new vector<float>(3, 0.);
-  primaryMomT1 = new vector<float>(4, 0.);
-  primaryPosE1 = new vector<float>(3, 0.);
-  primaryMomE1 = new vector<float>(4, 0.);
-  */
+  polarization = new vector<float>(3, 0.);
 
   this->GetTree()->Branch("inputInitialPosition", "vector<float>", &inputInitialPosition);
   this->GetTree()->Branch("inputMomentum", "vector<float>", &inputMomentum);
+  this->GetTree()->Branch("polarization", "vector<float>", &polarization);
   this->GetTree()->Branch("primaryID", &this->primaryID, "primaryID/I");
-  //  this->GetTree()->Branch("primaryPosT1", "vector<float>", &primaryPosT1);
-  //  this->GetTree()->Branch("primaryMomT1", "vector<float>", &primaryMomT1);
-  //  this->GetTree()->Branch("primaryPosE1", "vector<float>", &primaryPosE1);
-  //  this->GetTree()->Branch("primaryMomE1", "vector<float>", &primaryMomE1);
-  /*
-  this->GetTree()->Branch("nTracksT1", &this->nTracksT1, "nTracksT1/I");
-  this->GetTree()->Branch("nTracksT2", &this->nTracksT2, "nTracksT2/I");
-  this->GetTree()->Branch("nTracksE1", &this->nTracksE1, "nTracksE1/I");
-  this->GetTree()->Branch("nTracksE2", &this->nTracksE2, "nTracksE2/I");
-  this->GetTree()->Branch("nTracksTRK", &this->nTracksTRK, "nTracksTRK[6]/F");
-  */
+
 
   //integrated per longitudinal layer
   this->GetTree()->Branch("depositedEnergyEcalFront",&this->depositedEnergyEcalFront,"depositedEnergyEcalFront/F");
@@ -89,8 +72,6 @@ CreateTree::CreateTree(TString name)
   this->GetTree()->Branch("ECAL_f_exit_C", &this->ECAL_f_exit_C, "ECAL_f_exit_C/I");
   this->GetTree()->Branch("ECAL_r_exit_S", &this->ECAL_r_exit_S, "ECAL_r_exit_S/I");
   this->GetTree()->Branch("ECAL_r_exit_C", &this->ECAL_r_exit_C, "ECAL_r_exit_C/I");  
-
-
 
   //detected in three detectors
   this->GetTree()->Branch("SDFdetected_f_S", &this->SDFdetected_f_S, "SDFdetected_f_S/I");

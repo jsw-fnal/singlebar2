@@ -60,6 +60,8 @@
 /vis/filtering/trajectories/particleFilter-0/add mu-
 #/vis/filtering/trajectories/particleFilter-0/add gamma
 /vis/filtering/trajectories/particleFilter-0/add opticalphoton
+/vis/filtering/trajectories/particleFilter-0/add proton
+
 #
 # To invert the above, drawing all particles except gammas,
 # keep the above two lines but also add:
@@ -72,29 +74,33 @@
 /vis/modeling/trajectories/drawByParticleID-0/set e- red
 /vis/modeling/trajectories/drawByParticleID-0/set pi- brown
 /vis/modeling/trajectories/drawByParticleID-0/set mu- red
+/vis/modeling/trajectories/drawByParticleID-0/set proton red
 /vis/modeling/trajectories/drawByParticleID-0/set gamma yellow
 /vis/modeling/trajectories/drawByParticleID-0/set opticalphoton cyan
 #
 # To superimpose all of the events from a given run:
-/vis/scene/endOfEventAction accumulate 1
+/vis/scene/endOfEventAction accumulate 0
 #
 # Re-establish auto refreshing and verbosity:
 /vis/viewer/set/autoRefresh true
-#/vis/verbose warnings
+/vis/verbose warnings
 #
 # For file-based drivers, use this to create an empty detector view:
 #/vis/viewer/flush
 
 /units/list
 
-/gps/energy 100 MeV
+/gps/energy 1 GeV
 /gps/particle mu-
 #/gps/particle e-
 
 /gps/pos/type Plane
 /gps/pos/shape Square
-/gps/pos/centre 0 0 -10 mm
+/gps/pos/centre 0 0 50 mm
+#/gps/pos/centre 0 0 160 mm
+
 /gps/direction 0 0 1
+
 #/gps/pos/halfx 3 mm
 #/gps/pos/halfy 15 mm
 #/gps/ang/type beam2d

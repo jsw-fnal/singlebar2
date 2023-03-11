@@ -1,6 +1,6 @@
 #include "SteppingAction.hh"
 #include "TrackingAction.hh"
-#include "DR_PMTSD.hh"
+//#include "DR_PMTSD.hh"
 #include "DetectorConstruction.hh"
 #include "TString.h"
 #include "TRandom3.h"
@@ -76,6 +76,8 @@ SteppingAction::~SteppingAction()
 
 void SteppingAction::UserSteppingAction(const G4Step *theStep)
 {
+  //G4cout << "UserSteppingAction::ProcessHits" << G4endl;
+
   // this code does very little now 
   // it is being replaced with sensitive detector code
   // clean me up!  is it useful to have this to cut on photon lambda?
@@ -125,10 +127,14 @@ void SteppingAction::UserSteppingAction(const G4Step *theStep)
   }
   ///
   if (particleType != G4OpticalPhoton::OpticalPhotonDefinition()) return;
-  G4String processName = theTrack->GetCreatorProcess()->GetProcessName();
+  //if optics
+  G4String processName="Scintillation";  // protect aginst optical photon gun option w/ no CreatorProcess
+  if (theTrack->GetCreatorProcess()) processName = theTrack->GetCreatorProcess()->GetProcessName();
+
   float photWL = MyMaterials::fromEvToNm(theTrack->GetTotalEnergy() / eV);
   if (photWL > 1000 || photWL < 300) {
     theTrack->SetTrackStatus(fKillTrackAndSecondaries);
+    //G4cout << "Photon killed in user stepping action" << G4endl;
     return;
   }
 

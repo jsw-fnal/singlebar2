@@ -23,9 +23,7 @@ SD_CrystalR::SD_CrystalR(G4String name)
 
 SD_CrystalR::~SD_CrystalR() {}
 
-void SD_CrystalR::Initialize(G4HCofThisEvent *HCE)
-{
-
+void SD_CrystalR::Initialize(G4HCofThisEvent *HCE){
 }
 
 G4bool
@@ -73,19 +71,25 @@ SD_CrystalR::ProcessHits( G4Step*       theStep,
  //------------- optical photon -------------
   if (particleType == G4OpticalPhoton::OpticalPhotonDefinition()) {
     //if optics
-    G4String processName = theTrack->GetCreatorProcess()->GetProcessName();
+    G4String processName="Scintillation";  // protect aginst optical photon gun option w/ no CreatorProcess
+    if (theTrack->GetCreatorProcess()) processName = theTrack->GetCreatorProcess()->GetProcessName();
+
     float photWL = MyMaterials::fromEvToNm(theTrack->GetTotalEnergy() / eV);
 
     //only consider 300 to 1000nm
     if (photWL > 1000 || photWL < 300) {
       theTrack->SetTrackStatus(fKillTrackAndSecondaries);
+      //G4cout << "Photon killed in SD" << G4endl;
       return true;
     }
 
     bool isCher = (processName == "Cerenkov");
     bool isScin = (processName == "Scintillation");
 
-    // photon production info
+    // photon production info for test
+    //static int countc=0;
+    //static int counts=0;
+
     if (nStep == 1) {
       G4StepPoint *thePrePoint = theStep->GetPreStepPoint();
       G4double gTime = thePrePoint->GetGlobalTime();
@@ -93,11 +97,34 @@ SD_CrystalR::ProcessHits( G4Step*       theStep,
 	CreateTree::Instance()->ECAL_r_total_S += 1;
 	CreateTree::Instance()->h_phot_lambda_ECAL_r_produce_Scin->Fill(photWL);
 	CreateTree::Instance()->h_phot_time_ECAL_r_produce_Scin->Fill(gTime);
+	/*
+	if (counts<20) {
+	  G4ThreeVector pol=theTrack->GetPolarization();
+	  G4ThreeVector mom=theTrack->GetMomentumDirection();
+	  if (mom.y()>0.9){
+	  G4cout << "Momentum S " << mom.x() << " " << mom.y() << " " << mom.z() << " " << theTrack->GetTotalEnergy() << G4endl;	  
+	  G4cout << "Polarization S " << pol.x() << " " << pol.y() << " " << pol.z() << G4endl;
+	  counts+=1;
+	  }
+	}
+	*/
+
       }
       else if (isCher) {
 	CreateTree::Instance()->ECAL_r_total_C += 1;
 	CreateTree::Instance()->h_phot_lambda_ECAL_r_produce_Ceren->Fill(photWL);
 	CreateTree::Instance()->h_phot_time_ECAL_r_produce_Ceren->Fill(gTime);
+	/*
+	if (countc<20) {
+	  G4ThreeVector pol=theTrack->GetPolarization();
+	  G4ThreeVector mom=theTrack->GetMomentumDirection();
+	  if (mom.y()>0.9){
+	    G4cout << "Momentum C " << mom.x() << " " << mom.y() << " " << mom.z() << " " << theTrack->GetTotalEnergy() << G4endl;
+	    G4cout << "Polarization C " << pol.x() << " " << pol.y() << " " << pol.z() << G4endl;
+	    countc+=1;
+	  }
+	}
+	*/
       }
     }
 

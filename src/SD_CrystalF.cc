@@ -73,7 +73,9 @@ SD_CrystalF::ProcessHits( G4Step*       theStep,
   //------------- optical photon -------------
   if (particleType == G4OpticalPhoton::OpticalPhotonDefinition()) {
     //if optics
-    G4String processName = theTrack->GetCreatorProcess()->GetProcessName();
+    G4String processName="Scintillation";  // protect aginst optical photon gun option w/ no CreatorProcess
+    if (theTrack->GetCreatorProcess()) processName = theTrack->GetCreatorProcess()->GetProcessName();
+    
     float photWL = MyMaterials::fromEvToNm(theTrack->GetTotalEnergy() / eV);
     
     //only consider 300 to 1000nm:  probably not needed if it's already killed in userstepping action
