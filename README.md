@@ -18,6 +18,8 @@ or
 make
 ```
 
+For debug builds add -DCMAKE_BUILD_TYPE=Debug to original cmake command
+
 Note: each time you open a new terminal, you will need to source the g4env.sh script to set up you environment.  The first cmake command is only needed the fist time the code is built.  For subsequent changes it is only necessary to type 'make'.
 
 ## View the geometry / run interactively
@@ -36,6 +38,15 @@ Note: each time you open a new terminal, you will need to source the g4env.sh sc
 # -m <macro file>
 # -o <output file[.root]>
 ```
+* The default run.mac simulates ten 100 GeV muons aimed arouns the axis of the crystals module.
+* Use run1Mopticalphoton.mac to generate 1e6 optical photons randomly within the rear crystal.  Note that the particle source setting assumes the detauls cryatsl size and positioning in template.cfg.  When using the optical photon particle souece, the proper setting for the optical tracing flags is:
+```
+switchOnScintillation = 0
+propagateScintillation = 1
+switchOnCerenkov = 0
+propagateCerenkov = 0
+```
+
 
 ## Use the runner script
 
@@ -84,6 +95,7 @@ use the generate_temp.sh in `./template`
 cd template 
 source generate_temp.sh
 ```
+
 
 ## Root file
 
@@ -152,6 +164,7 @@ count of photons detected in three SiPM detectors
 - Branch("SDSdetected_r_S", &this->SDSdetected_r_S, "SDSdetected_r_S/I")
 - Branch("SDSdetected_r_C", &this->SDSdetected_r_C, "SDSdetected_r_C/I")
 
+
 ## GEANT4 Resources
 - [GEANT4 Homepage](https://geant4.web.cern.ch/)
 - [GEANT4 Tutorials/Schools](https://geant4.web.cern.ch/past-events)
@@ -174,3 +187,4 @@ To remove local changes and reset to the remote
 git fetch origin
 git reset --hard origin/main
 ```
+
