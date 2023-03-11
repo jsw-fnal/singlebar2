@@ -22,7 +22,7 @@ private:
   TString fname;
 
 public:
-  CreateTree(TString name);
+  CreateTree(const TString name);
   ~CreateTree();
 
   TTree *GetTree() const { return ftree; };
@@ -38,18 +38,11 @@ public:
   static CreateTree *fInstance;
 
   int Event;
-  /*
-  int inputTrackerX0;
-  int inputServiceAlmm;
-  int inputTimingThick;
-  int inputE1Thick;
-  int inputE2Thick;
-  int inputE1Width;
-  int inputTimingECAL_dist;
-  */
+
 
   std::vector<float> *inputMomentum;        // Px Py Pz E
   std::vector<float> *inputInitialPosition; // x, y, z
+  std::vector<float> *polarization;         // x, y, z
   int primaryID;  /// pdg ID of initila beam particle
 
   /*
