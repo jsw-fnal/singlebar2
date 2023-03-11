@@ -10,7 +10,7 @@
 # Run menu :
 /gui/addMenu run Run
 /gui/addButton run "beamOn 1" "/run/beamOn 1"
-/gui/addButton run run1 "/control/execute run1.mac"
+/gui/addButton run run1photon "/control/execute run1opticalphoton.mac"
 #
 # Gun menu :
 /gui/addMenu gun Gun
@@ -23,6 +23,17 @@
 /gui/addButton gun "pi+"     "/gps/particle pi+"
 /gui/addButton gun "neutron" "/gps/particle neutron"
 /gui/addButton gun "proton"  "/gps/particle proton"
+/gui/addButton gun "gamma"   "/gps/particle gamma"
+/gui/addButton gun "set z=50mm" "/gps/pos/centre 0 0 50 mm"
+/gui/addButton gun "set z=240mm" "/gps/pos/centre 0 0 240 mm"
+
+# photon source
+/gui/addMenu opp OpPhoton
+/gui/addButton opp "OpticalPhoton"   "/gps/particle opticalphoton"
+/gui/addButton opp "350 nm"  "/gps/energy 3.45 eV"
+/gui/addButton opp "420 nm"  "/gps/energy 2.95 eV"
+/gui/addButton opp "700 nm"  "/gps/energy 1.77 eV"
+
 
 #
 # Vis menu :
