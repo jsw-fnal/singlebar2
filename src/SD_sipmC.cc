@@ -40,8 +40,10 @@ SD_sipmC::ProcessHits( G4Step*       theStep,
 
   // to do check ionization energy at some point in active layer 
   if (particleType != G4OpticalPhoton::OpticalPhotonDefinition()) return true;
-  G4String processName = theTrack->GetCreatorProcess()->GetProcessName();
-  if ((processName != "Cerenkov") && processName != "Scintillation") return true;
+
+  G4String processName="Scintillation";  // protect aginst optical photon gun option w/ no CreatorProcess
+  if (theTrack->GetCreatorProcess()) processName = theTrack->GetCreatorProcess()->GetProcessName();
+ 
  
   float photWL = MyMaterials::fromEvToNm(theTrack->GetTotalEnergy() / eV);
   //only consider 300 to 1000nm

@@ -23,15 +23,18 @@ Note: each time you open a new terminal, you will need to source the g4env.sh sc
 ## View the geometry / run interactively
 
 ```bash
+# Example: usage with GUI
 ./CV_Testbeam -c template.cfg -u Qt  
+# -u <GUI>
 ```
 ## Run the events defined in run.mac
 
 ```bash
+# Example: usage
 ./CV_Testbeam -c template.cfg -m run.mac -o test
-# -c config file
-# -m particle source
-# -o output file
+# -c <config file>
+# -m <macro file>
+# -o <output file[.root]>
 ```
 
 ## Use the runner script
