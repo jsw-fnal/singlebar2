@@ -2,8 +2,8 @@
 //
 
 #include "EventAction.hh"
-#include "DR_PMTHit.hh"
-#include "DR_PMTSD.hh"
+//#include "DR_PMTHit.hh"
+//#include "DR_PMTSD.hh"
 #include "DetectorConstruction.hh"
 #include "MyMaterials.hh"
 #include "G4RunManager.hh"
@@ -58,6 +58,11 @@ void EventAction::BeginOfEventAction(const G4Event *evt)
   G4double px = particle->GetPx();
   G4double py = particle->GetPy();
   G4double pz = particle->GetPz();
+  
+  G4double polx = particle->GetPolX ();
+  G4double poly = particle->GetPolY ();
+  G4double polz = particle->GetPolZ ();
+
 
   CreateTree::Instance()->Event = evt->GetEventID();
   CreateTree::Instance()->primaryID = pdgID;
@@ -68,7 +73,9 @@ void EventAction::BeginOfEventAction(const G4Event *evt)
   CreateTree::Instance()->inputMomentum->at(1) = py / GeV;
   CreateTree::Instance()->inputMomentum->at(2) = pz / GeV;
   CreateTree::Instance()->inputMomentum->at(3) = InitEnergy / GeV;
-
+  CreateTree::Instance()->polarization->at(0) = polx;
+  CreateTree::Instance()->polarization->at(1) = poly;
+  CreateTree::Instance()->polarization->at(2) = polz;
 }
 
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
