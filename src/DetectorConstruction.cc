@@ -103,7 +103,7 @@ namespace {
 
 using Layer_t = std::tuple<G4double, std::vector<G4LogicalVolume*>, std::vector<G4AssemblyVolume*>>;
 
-void layeredAssembly(G4AssemblyVolume* assemblyVolume,
+G4double layeredAssembly(G4AssemblyVolume* assemblyVolume,
 	const std::vector<Layer_t>& layers,
 	G4ThreeVector offset,
 	G4RotationMatrix Ra,
@@ -111,7 +111,11 @@ void layeredAssembly(G4AssemblyVolume* assemblyVolume,
 
 	const G4ThreeVector z{0,0,1};
 
+  G4double totalLength = 0.;
+
 	for (unsigned int i = 0; i < layers.size(); i++) {
+    totalLength += std::get<0>(layers[i]);
+
 		if (i == 0) {
 			offset += 0.5 * std::get<0>(layers[i]) * z;
 		} else {
@@ -130,6 +134,20 @@ void layeredAssembly(G4AssemblyVolume* assemblyVolume,
 			assemblyVolume->AddPlacedAssembly(v, offset, &Ra);
 		}
 	}
+
+  return totalLength;
+}
+
+G4double layerPosition(
+  const std::vector<Layer_t>& layers,
+  G4ThreeVector offset) {
+
+  G4double pos = offset.z();
+  for (const auto& layer : layers) {
+    pos += std::get<0>(layer);
+  }
+
+  return pos;
 }
 
 } // namespace ::
@@ -329,7 +347,7 @@ G4VPhysicalVolume *DetectorConstruction::Construct()
                     NULL,{0,0,wrapper_gap + wrap_thick});
   } else {
     // shift outer wrapper block to cut off front face of wapper to xtal surface
-    ecalWrapperS_r1 = new G4IntersectionSolid("ecalWrapperS_r1",ecalWrapper_shellS_r,ecalWrapper_outerS_r,
+    ecalWrapperS_r = new G4IntersectionSolid("ecalWrapperS_r",ecalWrapper_shellS_r,ecalWrapper_outerS_r,
                   NULL,{0,0,-(wrapper_gap + wrap_thick)});
   }
 
@@ -440,8 +458,12 @@ G4VPhysicalVolume *DetectorConstruction::Construct()
     { baffle_z,                                      {}, {sipmAssembly_r} }
   };
 
+  const G4ThreeVector assemblyOffset{0 , 0, -baffle_z};
+
   // Currently layer choice is hard coded. Need to also comment / uncomment appropriate ecalWrapper_f code.
-  layeredAssembly(xtalAssembly, sipmRLayers, {0, 0, -baffle_z}, Ra, true);
+  layeredAssembly(xtalAssembly, sipmRLayers, assemblyOffset, Ra, true);
+
+  G4cout << "Front face of rear crystal placement at z = " << (layerPosition(sipmRLayers, assemblyOffset) / mm) << " mm" << G4endl;
   
   // set surface properties
   G4LogicalSkinSurface *crystalSurface_f = new G4LogicalSkinSurface("crystalSurface_f", ecalCrystalL_f, fECALSurface);
