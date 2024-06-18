@@ -228,7 +228,7 @@ DetectorConstruction::DetectorConstruction(const string &configFileName)
 
 DetectorConstruction::~DetectorConstruction()
 {
-  delete stepLimit;
+  //delete stepLimit;
 }
 
 //---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
@@ -797,16 +797,17 @@ void DetectorConstruction::initializeMaterials()
   //------------------
   // change properties
 
-  if (core_absLength > 0)
+  /*if (core_absLength > 0)
   {
     const G4int nEntries_ABS = 2;
     G4double PhotonEnergy_ABS[nEntries_ABS] = {1. * eV, 10. * eV};
     G4double Absorption[nEntries_ABS] = {core_absLength * mm, core_absLength * mm};
 
+    CoMaterial->GetMaterialPropertiesTable()->DumpTable();
     CoMaterial->GetMaterialPropertiesTable()->RemoveProperty("ABSLENGTH");
     CoMaterial->GetMaterialPropertiesTable()->AddProperty("ABSLENGTH", PhotonEnergy_ABS, Absorption, nEntries_ABS);
-  }
-  if (core_rIndex > 0)
+  }*/
+  /*if (core_rIndex > 0)
   {
     const G4int nEntries_RI = 2;
     G4double PhotonEnergy_RI[nEntries_RI] = {1. * eV, 10. * eV};
@@ -814,7 +815,7 @@ void DetectorConstruction::initializeMaterials()
 
     CoMaterial->GetMaterialPropertiesTable()->RemoveProperty("RINDEX");
     CoMaterial->GetMaterialPropertiesTable()->AddProperty("RINDEX", PhotonEnergy_RI, RefractiveIndex, nEntries_RI);
-  }
+  }*/
 }
 
 //---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
